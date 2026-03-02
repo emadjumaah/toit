@@ -21,6 +21,7 @@ export class ItToWebApp {
   private itEditor!: monaco.editor.IStandaloneCodeEditor;
   private activeOutput: OutputTab = "html";
   private debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  private lastGoodItText = "";
 
   constructor() {
     this.registerLanguage();
@@ -108,6 +109,8 @@ export class ItToWebApp {
     this.itEditor.onDidChangeModelContent(() => {
       this.debounce(() => this.runConvert(), 300);
     });
+
+    this.runConvert();
   }
 
   // ── Event binding ────────────────────────────────────────────────────────────
@@ -195,6 +198,7 @@ export class ItToWebApp {
     const itText = this.itEditor.getValue();
     if (!itText.trim()) {
       this.setOutput("", "");
+      this.updateStats("");
       return;
     }
 
@@ -203,9 +207,12 @@ export class ItToWebApp {
       const html = renderHTML(doc);
       const markdown = this.convertToMarkdown(doc);
       this.setOutput(html, markdown);
+      this.updateStats(itText);
+      this.lastGoodItText = itText;
     } catch (error) {
       console.error("Error parsing IntentText:", error);
       this.setOutput("", "");
+      this.updateStats(this.lastGoodItText, true);
     }
   }
 
@@ -227,6 +234,7 @@ export class ItToWebApp {
 
     if (doc.blocks) {
       for (const block of doc.blocks) {
+        const status = block?.properties?.status;
         switch (block.type) {
           case "title":
             lines.push(`# ${block.content}`);
@@ -245,10 +253,11 @@ export class ItToWebApp {
             lines.push("");
             break;
           case "task":
-            lines.push(`- [ ] ${block.content}`);
-            break;
-          case "done":
-            lines.push(`- [x] ${block.content}`);
+            lines.push(
+              status === "done"
+                ? `- [x] ${block.content}`
+                : `- [ ] ${block.content}`,
+            );
             break;
           case "quote":
             lines.push(`> ${block.content}`);
@@ -298,7 +307,13 @@ export class ItToWebApp {
     preview.innerHTML = renderHTML(doc);
   }
 
-  private updateStats(itText: string): void {
+  private updateStats(itText: string, hasError = false): void {
+    if (hasError) {
+      document.getElementById("stats-bar")!.textContent =
+        `Parse error · ${itText.length} chars`;
+      return;
+    }
+
     const doc = itText.trim() ? parseIntentText(itText) : null;
     const blocks = doc?.blocks.length ?? 0;
     const lines = itText.split("\n").filter((l) => l.trim()).length;

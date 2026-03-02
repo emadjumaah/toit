@@ -141,7 +141,7 @@ export class WebToItApp {
 
       if (html) {
         // Insert HTML immediately for instant visual feedback
-        document.execCommand("insertHTML", false, html);
+        this.insertHtmlAtCursor(htmlEditor, html);
 
         // Sanitize and convert asynchronously to avoid blocking
         requestAnimationFrame(() => {
@@ -153,7 +153,7 @@ export class WebToItApp {
           this.runConvert();
         });
       } else if (text) {
-        document.execCommand("insertText", false, text);
+        this.insertTextAtCursor(htmlEditor, text);
         requestAnimationFrame(() => this.runConvert());
       }
     });
@@ -331,6 +331,45 @@ export class WebToItApp {
       if (href && /^(javascript|data):/i.test(href)) el.removeAttribute("href");
     });
     return div.innerHTML;
+  }
+
+  private insertHtmlAtCursor(container: HTMLElement, html: string): void {
+    container.focus();
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) {
+      container.insertAdjacentHTML("beforeend", html);
+      return;
+    }
+
+    const range = selection.getRangeAt(0);
+    if (!container.contains(range.commonAncestorContainer)) {
+      container.insertAdjacentHTML("beforeend", html);
+      return;
+    }
+
+    range.deleteContents();
+    const fragment = range.createContextualFragment(html);
+    const lastNode = fragment.lastChild;
+    range.insertNode(fragment);
+
+    if (lastNode) {
+      const nextRange = document.createRange();
+      nextRange.setStartAfter(lastNode);
+      nextRange.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(nextRange);
+    }
+  }
+
+  private insertTextAtCursor(container: HTMLElement, text: string): void {
+    this.insertHtmlAtCursor(
+      container,
+      text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\n/g, "<br>"),
+    );
   }
 
   private debounce(fn: () => void, delay: number): void {
