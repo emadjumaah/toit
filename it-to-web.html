@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>web-to-it · Convert HTML &amp; Markdown to IntentText</title>
+    <title>it-to-web · Convert IntentText (.it) to HTML & Markdown</title>
     <style>
       /* ── Reset & Base ──────────────────────────────────────────────── */
       *,
@@ -243,27 +243,15 @@
         display: flex;
       }
 
-      /* ── HTML editor (contenteditable) ─────────────────────────────── */
-      #html-editor {
+      /* ── Monaco editor container ───────────────────────────────────── */
+      #it-editor {
         flex: 1;
-        padding: 16px 18px;
-        font-family: var(--font-sans);
-        font-size: 13.5px;
-        line-height: 1.65;
-        color: #1e293b;
-        outline: none;
-        overflow-y: auto;
-        caret-color: #6d28d9;
+        min-height: 0;
       }
 
-      #html-editor:empty::before {
-        content: "Paste HTML here — or type some rich text…";
-        color: #cbd5e1;
-        pointer-events: none;
-      }
-
-      /* ── Markdown editor (textarea) ────────────────────────────────── */
-      #md-editor {
+      /* ── HTML/Markdown output areas ────────────────────────────────── */
+      #html-output,
+      #md-output {
         flex: 1;
         padding: 16px 18px;
         font-family: var(--font-mono);
@@ -273,23 +261,31 @@
         background: #fff;
         border: none;
         outline: none;
-        resize: none;
         overflow-y: auto;
         caret-color: #6d28d9;
       }
 
-      #md-editor::placeholder {
+      #html-output {
+        font-family: var(--font-sans);
+        font-size: 13.5px;
+      }
+
+      #md-output {
+        resize: none;
+      }
+
+      #html-output:empty::before {
+        content: "HTML will appear here once you add IntentText content…";
+        color: #cbd5e1;
+        pointer-events: none;
+      }
+
+      #md-output::placeholder {
         color: #cbd5e1;
       }
 
-      /* ── Monaco editor container ───────────────────────────────────── */
-      #it-editor {
-        flex: 1;
-        min-height: 0;
-      }
-
-      /* ── IT Preview ────────────────────────────────────────────────── */
-      #it-preview {
+      /* ── Preview ────────────────────────────────────────────────── */
+      #preview {
         flex: 1;
         padding: 20px 24px;
         overflow-y: auto;
@@ -318,35 +314,35 @@
         margin-top: 8px;
       }
 
-      #it-preview h1 {
+      #preview h1 {
         font-size: 22px;
         font-weight: 700;
         margin: 0 0 16px;
         color: #0f172a;
       }
-      #it-preview h2 {
+      #preview h2 {
         font-size: 18px;
         font-weight: 600;
         margin: 24px 0 10px;
         color: #1e293b;
       }
-      #it-preview h3 {
+      #preview h3 {
         font-size: 15px;
         font-weight: 600;
         margin: 18px 0 8px;
         color: #334155;
       }
-      #it-preview p {
+      #preview p {
         margin: 0 0 10px;
       }
 
-      #it-preview hr {
+      #preview hr {
         border: none;
         border-top: 1px solid #e2e8f0;
         margin: 20px 0;
       }
 
-      #it-preview blockquote,
+      #preview blockquote,
       .intent-quote {
         border-left: 3px solid #a78bfa;
         margin: 12px 0;
@@ -357,7 +353,7 @@
         font-style: italic;
       }
 
-      #it-preview pre,
+      #preview pre,
       .intent-code {
         background: #f8fafc;
         border: 1px solid #e2e8f0;
@@ -370,45 +366,45 @@
         color: #1e293b;
       }
 
-      #it-preview code {
+      #preview code {
         font-family: var(--font-mono);
         font-size: 12.5px;
       }
-      #it-preview pre code {
+      #preview pre code {
         background: none;
         padding: 0;
       }
 
-      #it-preview ul,
-      #it-preview ol {
+      #preview ul,
+      #preview ol {
         padding-left: 22px;
         margin: 8px 0;
       }
-      #it-preview li {
+      #preview li {
         margin: 3px 0;
       }
 
-      #it-preview table {
+      #preview table {
         border-collapse: collapse;
         width: 100%;
         margin: 12px 0;
         font-size: 13px;
       }
-      #it-preview th,
-      #it-preview td {
+      #preview th,
+      #preview td {
         border: 1px solid #e2e8f0;
         padding: 7px 12px;
         text-align: left;
       }
-      #it-preview th {
+      #preview th {
         background: #f8fafc;
         font-weight: 600;
       }
 
-      #it-preview a {
+      #preview a {
         color: #6d28d9;
       }
-      #it-preview img {
+      #preview img {
         max-width: 100%;
         border-radius: 4px;
       }
@@ -566,11 +562,11 @@
       <!-- Header -->
       <header>
         <div class="header-brand">
-          <h1>web<span>-to-</span>it</h1>
-          <p>Convert HTML &amp; Markdown to IntentText (.it)</p>
+          <h1>it<span>-to-</span>web</h1>
+          <p>Convert IntentText (.it) to HTML & Markdown</p>
         </div>
         <div class="header-links">
-          <a href="it-to-web.html" class="btn">Switch to .it → HTML/MD</a>
+          <a href="index.html" class="btn">← Switch to web-to-it</a>
           <span class="badge">@intenttext/core v1.3.0</span>
           <a
             href="https://github.com/intenttext/intenttext"
@@ -589,40 +585,32 @@
 
       <!-- Two-panel workspace -->
       <div class="panels">
-        <!-- LEFT: Input panel -->
+        <!-- LEFT: IntentText input panel -->
         <div class="panel">
           <div class="panel-header">
             <div class="tabs">
-              <button class="tab-btn active" data-input-tab="html">HTML</button>
-              <button class="tab-btn" data-input-tab="markdown">
-                Markdown
+              <button class="tab-btn active" data-input-tab="intenttext">
+                .it Source
               </button>
+              <button class="tab-btn" data-input-tab="preview">Preview</button>
             </div>
             <div class="panel-actions">
               <button class="btn" id="clear-btn">Clear</button>
             </div>
           </div>
 
-          <!-- HTML tab -->
-          <div class="tab-content active" id="html-tab-content">
-            <div
-              id="html-editor"
-              contenteditable="true"
-              spellcheck="false"
-              aria-label="HTML input"
-              aria-multiline="true"
-              role="textbox"
-            ></div>
+          <!-- IntentText editor -->
+          <div class="tab-content active" id="intenttext-tab-content">
+            <div id="it-editor"></div>
           </div>
 
-          <!-- Markdown tab -->
-          <div class="tab-content" id="md-tab-content">
-            <textarea
-              id="md-editor"
-              spellcheck="false"
-              placeholder="Type or paste Markdown here…"
-              aria-label="Markdown input"
-            ></textarea>
+          <!-- Preview -->
+          <div class="tab-content" id="preview-tab-content">
+            <div id="preview">
+              <p class="preview-empty">
+                Preview will appear here once you add content…
+              </p>
+            </div>
           </div>
         </div>
 
@@ -630,31 +618,30 @@
         <div class="panel">
           <div class="panel-header">
             <div class="tabs">
-              <button class="tab-btn active" data-output-tab="source">
-                .it Source
+              <button class="tab-btn active" data-output-tab="html">
+                HTML
               </button>
-              <button class="tab-btn" data-output-tab="preview">Preview</button>
+              <button class="tab-btn" data-output-tab="markdown">
+                Markdown
+              </button>
             </div>
             <div class="panel-actions">
               <button class="btn" id="copy-btn">Copy</button>
-              <button class="btn primary" id="download-btn">
-                Download .it
-              </button>
+              <button class="btn primary" id="download-btn">Download</button>
             </div>
           </div>
 
-          <!-- Source tab (Monaco) -->
-          <div class="tab-content active" id="source-tab-content">
-            <div id="it-editor"></div>
+          <!-- HTML output -->
+          <div class="tab-content active" id="html-tab-content">
+            <div id="html-output"></div>
           </div>
 
-          <!-- Preview tab -->
-          <div class="tab-content" id="preview-tab-content">
-            <div id="it-preview">
-              <p class="preview-empty">
-                Preview will appear here once you add content…
-              </p>
-            </div>
+          <!-- Markdown output -->
+          <div class="tab-content" id="markdown-tab-content">
+            <textarea
+              id="md-output"
+              placeholder="Markdown output will appear here…"
+            ></textarea>
           </div>
 
           <div class="stats-bar" id="stats-bar">
@@ -664,6 +651,6 @@
       </div>
     </div>
 
-    <script type="module" src="/src/main.ts"></script>
+    <script type="module" src="/src/it-to-web.ts"></script>
   </body>
 </html>
