@@ -115,18 +115,22 @@ export class WebToItApp {
 
   private bindEvents(): void {
     // Input tabs
-    document.querySelectorAll<HTMLElement>("[data-input-tab]").forEach((btn) => {
-      btn.addEventListener("click", () =>
-        this.switchInput(btn.dataset.inputTab as InputTab),
-      );
-    });
+    document
+      .querySelectorAll<HTMLElement>("[data-input-tab]")
+      .forEach((btn) => {
+        btn.addEventListener("click", () =>
+          this.switchInput(btn.dataset.inputTab as InputTab),
+        );
+      });
 
     // Output tabs
-    document.querySelectorAll<HTMLElement>("[data-output-tab]").forEach((btn) => {
-      btn.addEventListener("click", () =>
-        this.switchOutput(btn.dataset.outputTab as OutputTab),
-      );
-    });
+    document
+      .querySelectorAll<HTMLElement>("[data-output-tab]")
+      .forEach((btn) => {
+        btn.addEventListener("click", () =>
+          this.switchOutput(btn.dataset.outputTab as OutputTab),
+        );
+      });
 
     // HTML editor — paste
     const htmlEditor = document.getElementById("html-editor")!;
@@ -134,29 +138,50 @@ export class WebToItApp {
       e.preventDefault();
       const html = e.clipboardData?.getData("text/html") || "";
       const text = e.clipboardData?.getData("text/plain") || "";
+
       if (html) {
-        document.execCommand("insertHTML", false, this.sanitize(html));
+        // Insert HTML immediately for instant visual feedback
+        document.execCommand("insertHTML", false, html);
+
+        // Sanitize and convert asynchronously to avoid blocking
+        requestAnimationFrame(() => {
+          const currentHtml = htmlEditor.innerHTML;
+          const sanitized = this.sanitize(currentHtml);
+          if (sanitized !== currentHtml) {
+            htmlEditor.innerHTML = sanitized;
+          }
+          this.runConvert();
+        });
       } else if (text) {
         document.execCommand("insertText", false, text);
+        requestAnimationFrame(() => this.runConvert());
       }
-      setTimeout(() => this.runConvert(), 80);
     });
-    htmlEditor.addEventListener("input", () => this.debounce(() => this.runConvert(), 300));
-
-    // Markdown editor — input
-    document.getElementById("md-editor")!.addEventListener(
-      "input",
-      () => this.debounce(() => this.runConvert(), 300),
+    htmlEditor.addEventListener("input", () =>
+      this.debounce(() => this.runConvert(), 300),
     );
 
+    // Markdown editor — input
+    document
+      .getElementById("md-editor")!
+      .addEventListener("input", () =>
+        this.debounce(() => this.runConvert(), 300),
+      );
+
     // Clear
-    document.getElementById("clear-btn")!.addEventListener("click", () => this.clear());
+    document
+      .getElementById("clear-btn")!
+      .addEventListener("click", () => this.clear());
 
     // Copy
-    document.getElementById("copy-btn")!.addEventListener("click", () => this.copy());
+    document
+      .getElementById("copy-btn")!
+      .addEventListener("click", () => this.copy());
 
     // Download
-    document.getElementById("download-btn")!.addEventListener("click", () => this.download());
+    document
+      .getElementById("download-btn")!
+      .addEventListener("click", () => this.download());
 
     // Resize Monaco on window resize
     window.addEventListener("resize", () => this.itEditor.layout());
@@ -166,9 +191,11 @@ export class WebToItApp {
 
   private switchInput(tab: InputTab): void {
     this.activeInput = tab;
-    document.querySelectorAll<HTMLElement>("[data-input-tab]").forEach((btn) =>
-      btn.classList.toggle("active", btn.dataset.inputTab === tab),
-    );
+    document
+      .querySelectorAll<HTMLElement>("[data-input-tab]")
+      .forEach((btn) =>
+        btn.classList.toggle("active", btn.dataset.inputTab === tab),
+      );
     document
       .getElementById("html-tab-content")!
       .classList.toggle("active", tab === "html");
@@ -180,9 +207,11 @@ export class WebToItApp {
 
   private switchOutput(tab: OutputTab): void {
     this.activeOutput = tab;
-    document.querySelectorAll<HTMLElement>("[data-output-tab]").forEach((btn) =>
-      btn.classList.toggle("active", btn.dataset.outputTab === tab),
-    );
+    document
+      .querySelectorAll<HTMLElement>("[data-output-tab]")
+      .forEach((btn) =>
+        btn.classList.toggle("active", btn.dataset.outputTab === tab),
+      );
     document
       .getElementById("source-tab-content")!
       .classList.toggle("active", tab === "source");
@@ -206,9 +235,8 @@ export class WebToItApp {
         itText = convertHtmlToIntentText(html);
       }
     } else {
-      const md = (
-        document.getElementById("md-editor") as HTMLTextAreaElement
-      ).value;
+      const md = (document.getElementById("md-editor") as HTMLTextAreaElement)
+        .value;
       if (md.trim()) {
         itText = convertMarkdownToIntentText(md);
       }
@@ -238,9 +266,8 @@ export class WebToItApp {
     const doc = itText.trim() ? parseIntentText(itText) : null;
     const blocks = doc?.blocks.length ?? 0;
     const lines = itText.split("\n").filter((l) => l.trim()).length;
-    document.getElementById(
-      "stats-bar",
-    )!.textContent = `${blocks} blocks · ${lines} lines · ${itText.length} chars`;
+    document.getElementById("stats-bar")!.textContent =
+      `${blocks} blocks · ${lines} lines · ${itText.length} chars`;
   }
 
   // ── Actions ───────────────────────────────────────────────────────────────
@@ -287,7 +314,16 @@ export class WebToItApp {
       .querySelectorAll("script, style, meta, link, noscript")
       .forEach((el) => el.remove());
     div.querySelectorAll("*").forEach((el) => {
-      const keep = ["href", "src", "alt", "title", "colspan", "rowspan", "type", "checked"];
+      const keep = [
+        "href",
+        "src",
+        "alt",
+        "title",
+        "colspan",
+        "rowspan",
+        "type",
+        "checked",
+      ];
       for (const attr of [...el.attributes]) {
         if (!keep.includes(attr.name)) el.removeAttribute(attr.name);
       }
