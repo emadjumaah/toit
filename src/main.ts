@@ -1,3 +1,4 @@
-import { WebToItApp } from "./app";
+import "./styles.css";
+import { IntentTextApp } from "./app";
 
-new WebToItApp();
+new IntentTextApp();

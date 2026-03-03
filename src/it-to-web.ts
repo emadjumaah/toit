@@ -48,6 +48,8 @@ export class ItToWebApp {
             /^(title|section|sub|subsection|note|task|done|ask|question|quote|image|link|ref|summary|info|warning|tip|success|headers|row|embed|code|end):/,
             "keyword",
           ],
+          // Checkbox tasks
+          [/^\[[ x]\]/, "keyword"],
           // Pipe metadata separator
           [/\|/, "operator"],
           // Bold *text*
@@ -229,68 +231,98 @@ export class ItToWebApp {
   }
 
   private convertToMarkdown(doc: any): string {
-    // Basic IntentText to Markdown conversion
     const lines: string[] = [];
 
     if (doc.blocks) {
       for (const block of doc.blocks) {
-        const status = block?.properties?.status;
+        const props = block.properties || {};
         switch (block.type) {
           case "title":
-            lines.push(`# ${block.content}`);
-            lines.push("");
+            lines.push(`# ${block.content}`, "");
             break;
           case "section":
-            lines.push(`## ${block.content}`);
-            lines.push("");
+            lines.push(`## ${block.content}`, "");
             break;
           case "sub":
-            lines.push(`### ${block.content}`);
-            lines.push("");
+            lines.push(`### ${block.content}`, "");
             break;
           case "note":
-            lines.push(block.content);
-            lines.push("");
+          case "body-text":
+            lines.push(block.content, "");
             break;
-          case "task":
-            lines.push(
-              status === "done"
-                ? `- [x] ${block.content}`
-                : `- [ ] ${block.content}`,
-            );
+          case "task": {
+            const meta = this.formatProps(props, ["owner", "due", "priority"]);
+            lines.push(`- [ ] ${block.content}${meta}`);
+            break;
+          }
+          case "done": {
+            const meta = this.formatProps(props, ["owner", "time"]);
+            lines.push(`- [x] ${block.content}${meta}`);
+            break;
+          }
+          case "question":
+          case "ask":
+            lines.push(`> **Q:** ${block.content}`, "");
             break;
           case "quote":
-            lines.push(`> ${block.content}`);
-            lines.push("");
+            lines.push(`> ${block.content}`, "");
+            break;
+          case "summary":
+            lines.push(`> **Summary:** ${block.content}`, "");
             break;
           case "code":
             lines.push("```");
             if (block.content) lines.push(block.content);
-            lines.push("```");
-            lines.push("");
+            lines.push("```", "");
             break;
           case "link":
-            lines.push(`[${block.text || block.content}](${block.to})`);
-            lines.push("");
+            lines.push(`[${block.content}](${props.to || ""})`, "");
             break;
           case "image":
-            lines.push(`![${block.content}](${block.at})`);
-            lines.push("");
+            lines.push(`![${block.content}](${props.at || ""})`, "");
+            break;
+          case "info":
+            lines.push(`> **ℹ️ Info:** ${block.content}`, "");
+            break;
+          case "warning":
+            lines.push(`> **⚠️ Warning:** ${block.content}`, "");
+            break;
+          case "tip":
+            lines.push(`> **💡 Tip:** ${block.content}`, "");
+            break;
+          case "success":
+            lines.push(`> **✅ Success:** ${block.content}`, "");
+            break;
+          case "table":
+            if (block.table) {
+              const { headers, rows } = block.table;
+              if (headers?.length) {
+                lines.push(`| ${headers.join(" | ")} |`);
+                lines.push(`| ${headers.map(() => "---").join(" | ")} |`);
+              }
+              for (const row of rows || []) {
+                lines.push(`| ${row.join(" | ")} |`);
+              }
+              lines.push("");
+            }
             break;
           case "divider":
-            lines.push("---");
-            lines.push("");
+            lines.push("---", "");
             break;
           default:
             if (block.content) {
-              lines.push(block.content);
-              lines.push("");
+              lines.push(block.content, "");
             }
         }
       }
     }
 
     return lines.join("\n").trim();
+  }
+
+  private formatProps(props: Record<string, string>, keys: string[]): string {
+    const parts = keys.filter((k) => props[k]).map((k) => `${k}: ${props[k]}`);
+    return parts.length ? ` *(${parts.join(", ")})* ` : "";
   }
 
   private renderPreview(): void {
