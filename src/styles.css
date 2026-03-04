@@ -47,13 +47,21 @@ html,
 body {
   height: 100%;
   font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
     sans-serif;
   font-size: 14px;
   line-height: 1.5;
   color: var(--text);
   background: var(--bg);
   overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ── App shell ───────────────────────────────────────────── */
@@ -85,6 +93,19 @@ header h1 {
 header h1 span {
   font-weight: 400;
   opacity: 0.7;
+}
+
+.version-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  letter-spacing: 0.3px;
+  margin-left: 6px;
 }
 
 .header-left,
@@ -207,6 +228,24 @@ header h1 span {
   background: var(--border);
   margin: 4px 0;
 }
+.dropdown-header {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+  padding: 8px 12px 4px;
+}
+.dropdown-header:not(:first-child) {
+  margin-top: 4px;
+  border-top: 1px solid var(--border-light);
+  padding-top: 10px;
+}
+#new-dropdown .dropdown-menu {
+  min-width: 260px;
+  max-height: 400px;
+  overflow-y: auto;
+}
 #export-dropdown .dropdown-menu {
   left: auto;
   right: 0;
@@ -228,7 +267,8 @@ header h1 span {
   padding: 3px 10px;
   font-size: 12px;
   font-weight: 500;
-  font-family: "SF Mono", "Fira Code", "JetBrains Mono", monospace;
+  font-family:
+    "JetBrains Mono", "JetBrains Mono", "SF Mono", "Fira Code", monospace;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
@@ -242,8 +282,26 @@ header h1 span {
   color: var(--primary);
   background: var(--primary-light);
 }
+.kw-btn.agentic {
+  border-color: #ddd6fe;
+  color: #7c3aed;
+}
+.kw-btn.agentic:hover {
+  border-color: #7c3aed;
+  background: #ede9fe;
+  color: #5b21b6;
+}
 .kw-btn.callout {
   font-weight: 600;
+}
+.toolbar-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  margin-right: 2px;
 }
 .toolbar-sep {
   width: 1px;
@@ -341,7 +399,7 @@ header h1 span {
   display: none;
   flex: 1;
   overflow: auto;
-  padding: 24px;
+  padding: 0;
 }
 .preview-content.active {
   display: block;
@@ -349,16 +407,62 @@ header h1 span {
 .preview-content pre {
   white-space: pre-wrap;
   word-break: break-word;
-  font-family: "SF Mono", "Fira Code", monospace;
+  font-family: "JetBrains Mono", "SF Mono", "Fira Code", monospace;
   font-size: 12px;
   line-height: 1.6;
   color: var(--text);
+  padding: 16px 20px;
+  margin: 0;
 }
 .preview-empty {
   color: var(--text-dim);
   text-align: center;
-  margin-top: 80px;
+  padding-top: 80px;
   font-size: 15px;
+}
+
+/* Welcome screen */
+.preview-welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--text-muted);
+}
+.welcome-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  color: var(--primary);
+  opacity: 0.6;
+}
+.preview-welcome h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+  letter-spacing: -0.3px;
+}
+.preview-welcome p {
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 360px;
+  margin-bottom: 20px;
+}
+.welcome-hints {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.welcome-hint {
+  font-size: 12px;
+  padding: 4px 12px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  color: var(--text-muted);
 }
 
 /* ── Query panel ─────────────────────────────────────────── */
@@ -555,7 +659,7 @@ header h1 span {
   width: 100%;
   height: 250px;
   padding: 12px;
-  font-family: "SF Mono", "Fira Code", monospace;
+  font-family: "JetBrains Mono", "SF Mono", "Fira Code", monospace;
   font-size: 13px;
   line-height: 1.5;
   border: 1px solid var(--border);
@@ -594,7 +698,7 @@ header h1 span {
   font-size: 12.5px;
 }
 .help-row code {
-  font-family: "SF Mono", "Fira Code", monospace;
+  font-family: "JetBrains Mono", "SF Mono", "Fira Code", monospace;
   font-size: 11.5px;
   padding: 1px 5px;
   background: var(--surface-alt);
@@ -620,223 +724,21 @@ header h1 span {
   color: var(--success);
 }
 
-/* ── Preview rendering (intent blocks) ───────────────────── */
-#preview-rendered h1 {
-  font-size: 26px;
-  font-weight: 700;
-  line-height: 1.25;
-  margin-bottom: 16px;
-  color: var(--text);
-}
-#preview-rendered h2 {
-  font-size: 20px;
-  font-weight: 600;
-  margin: 24px 0 10px;
-  padding-bottom: 6px;
-  border-bottom: 2px solid var(--primary-light);
-  color: var(--text);
-}
-#preview-rendered h3 {
-  font-size: 16px;
-  font-weight: 600;
-  margin: 16px 0 6px;
-  color: var(--text);
-}
-#preview-rendered p,
-.intent-note {
-  margin-bottom: 10px;
-  line-height: 1.65;
+/* ── Preview rendering ────────────────────────────────────
+   The core renderer (renderHTML) emits its own scoped <style>
+   with all intent-* class definitions.  We only add minimal
+   overrides for the app shell context here.
+   ─────────────────────────────────────────────────────────── */
+
+/* Let the renderer's own .intent-document container handle
+   padding/max-width.  No extra padding on #preview-rendered. */
+#preview-rendered .intent-document {
+  padding: 20px 24px;
 }
 
-/* Intent block base — shared spacing only, NO border */
-[class^="intent-"] {
-  padding: 10px 14px;
-  margin-bottom: 10px;
-  border-radius: var(--radius);
-  line-height: 1.6;
-}
-
-/* Callout-style blocks get the colored left border */
-.intent-task,
-.intent-done,
-.intent-info,
-.intent-warning,
-.intent-tip,
-.intent-success,
-.intent-summary,
-.intent-quote,
-.intent-ask,
-.intent-question {
-  border-left: 4px solid var(--border);
-}
-
-/* Specific intent types */
-.intent-task {
-  background: #fef3c7;
-  border-left-color: #f59e0b;
-  color: #92400e;
-}
-.intent-done {
-  background: #dcfce7;
-  border-left-color: #22c55e;
-  color: #166534;
-}
-.intent-info {
-  background: #dbeafe;
-  border-left-color: #3b82f6;
-  color: #1e40af;
-}
-.intent-warning {
-  background: #fef9c3;
-  border-left-color: #eab308;
-  color: #854d0e;
-}
-.intent-tip {
-  background: #ede9fe;
-  border-left-color: #8b5cf6;
-  color: #5b21b6;
-}
-.intent-success {
-  background: #dcfce7;
-  border-left-color: #16a34a;
-  color: #166534;
-}
-.intent-summary {
-  background: #f0f9ff;
-  border-left-color: #0ea5e9;
-  color: #0c4a6e;
-  font-weight: 500;
-}
-.intent-quote {
-  background: var(--surface-alt);
-  border-left-color: var(--text-dim);
-  font-style: italic;
-  color: var(--text-muted);
-}
-.intent-ask,
-.intent-question {
-  background: #faf5ff;
-  border-left-color: #a855f7;
-  color: #6b21a8;
-}
-
-/* Checkbox items in preview */
-.intent-checkbox {
-  padding: 4px 14px 4px 0;
-  margin-bottom: 4px;
-  border-left: none;
-  background: none;
-}
-.intent-checkbox-done {
-  padding: 4px 14px 4px 0;
-  margin-bottom: 4px;
-  border-left: none;
-  background: none;
-  text-decoration: line-through;
-  color: var(--text-dim);
-}
-
-/* Links & images */
-.intent-link a {
-  color: var(--primary);
-  text-decoration: underline;
-}
-.intent-image img {
-  max-width: 100%;
-  border-radius: var(--radius);
-  margin: 8px 0;
-}
-.intent-image figcaption {
-  font-size: 12px;
-  color: var(--text-muted);
-  text-align: center;
-}
-
-/* Divider */
-.intent-divider {
-  border: none;
-  border-top: 2px solid var(--border);
-  margin: 16px 0;
-  padding: 0;
-}
-
-/* Code blocks */
-.intent-code {
-  background: #1e293b;
-  color: #e2e8f0;
-  padding: 12px 16px;
-  border-radius: var(--radius);
-  border-left: 4px solid var(--primary);
-  font-family: "SF Mono", "Fira Code", monospace;
-  font-size: 12.5px;
-  white-space: pre-wrap;
-  overflow-x: auto;
-  margin-bottom: 10px;
-}
-
-/* Tables in preview */
-#preview-rendered table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 14px;
-  font-size: 13px;
-}
-#preview-rendered th,
-#preview-rendered td {
-  padding: 8px 12px;
-  text-align: left;
-  border: 1px solid var(--border);
-}
-#preview-rendered th {
-  background: var(--surface-alt);
-  font-weight: 600;
-  color: var(--text);
-}
-#preview-rendered tr:nth-child(even) td {
-  background: var(--surface-alt);
-}
-
-/* Inline formatting in preview */
-#preview-rendered strong,
-#preview-rendered b {
-  font-weight: 700;
-}
-#preview-rendered em,
-#preview-rendered i {
-  font-style: italic;
-}
-#preview-rendered del,
-#preview-rendered s {
-  text-decoration: line-through;
-  opacity: 0.7;
-}
-#preview-rendered code {
-  font-family: "SF Mono", "Fira Code", monospace;
-  font-size: 0.9em;
-  padding: 1px 5px;
-  background: var(--surface-alt);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-}
-#preview-rendered a {
-  color: var(--primary);
-  text-decoration: underline;
-}
-
-/* Metadata badges */
-.intent-meta {
-  display: inline-flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-top: 4px;
-}
-.intent-meta-tag {
-  display: inline-block;
-  font-size: 11px;
-  padding: 1px 7px;
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.06);
-  color: var(--text-muted);
+/* Help modal – agentic section accent */
+.help-agentic h4 {
+  color: #0369a1;
 }
 
 /* ── Responsive ──────────────────────────────────────────── */
@@ -921,7 +823,8 @@ header h1 span {
     display: block !important;
   }
   #preview-html,
-  #preview-markdown {
+  #preview-markdown,
+  #preview-json {
     display: none !important;
   }
 }

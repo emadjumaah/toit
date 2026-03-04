@@ -3,12 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>IntentText — Write Structured Documents</title>
+    <title>IntentText — Structured Interchange for AI Agents & Humans</title>
     <meta
       name="description"
-      content="Write beautiful, structured documents with IntentText. Templates, live preview, and export to PDF, HTML, or Markdown. Runs in your browser — no uploads."
+      content="Write agent-executable workflows and human-readable documents in .it format. Live preview, templates, and export. Runs in your browser."
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div class="app">
@@ -16,11 +22,12 @@
       <header>
         <div class="header-left">
           <h1>Intent<span>Text</span></h1>
+          <span class="version-badge">v2.1</span>
         </div>
         <div class="header-center">
           <div class="dropdown" id="new-dropdown">
             <button class="btn" id="new-btn">
-              <span class="btn-icon">+</span> New
+              <span class="btn-icon">+</span> Template
             </button>
             <div class="dropdown-menu" id="new-menu"></div>
           </div>
@@ -59,30 +66,50 @@
 
       <!-- ── Keyword toolbar ────────────────────────────────── -->
       <div class="toolbar" id="keyword-toolbar">
+        <span class="toolbar-label">Structure</span>
         <button class="kw-btn" data-kw="title: ">title</button>
         <button class="kw-btn" data-kw="section: ">section</button>
         <button class="kw-btn" data-kw="sub: ">sub</button>
+        <button class="kw-btn" data-kw="---">divider</button>
         <span class="toolbar-sep"></span>
+        <span class="toolbar-label">Content</span>
         <button class="kw-btn" data-kw="note: ">note</button>
-        <button class="kw-btn" data-kw="task: ">task</button>
+        <button class="kw-btn" data-kw="task:  | owner:  | due: ">task</button>
         <button class="kw-btn" data-kw="done: ">done</button>
-        <button class="kw-btn" data-kw="[ ] ">checkbox</button>
+        <button class="kw-btn" data-kw="ask: ">ask</button>
+        <button class="kw-btn" data-kw="quote:  | by: ">quote</button>
         <span class="toolbar-sep"></span>
-        <button class="kw-btn" data-kw="question: ">question</button>
-        <button class="kw-btn" data-kw="quote: ">quote</button>
-        <button class="kw-btn" data-kw="summary: ">summary</button>
+        <span class="toolbar-label">Agentic</span>
+        <button class="kw-btn agentic" data-kw="step:  | tool: ">step</button>
+        <button
+          class="kw-btn agentic"
+          data-kw="decision:  | if:  | then:  | else: "
+        >
+          decision
+        </button>
+        <button class="kw-btn agentic" data-kw="handoff:  | from:  | to: ">
+          handoff
+        </button>
+        <button class="kw-btn agentic" data-kw="wait:  | timeout: ">
+          wait
+        </button>
+        <button class="kw-btn agentic" data-kw="parallel:  | steps: ">
+          parallel
+        </button>
+        <button class="kw-btn agentic" data-kw="retry:  | max:  | delay: ">
+          retry
+        </button>
         <span class="toolbar-sep"></span>
-        <button class="kw-btn callout" data-kw="info: ">info</button>
-        <button class="kw-btn callout" data-kw="warning: ">warning</button>
-        <button class="kw-btn callout" data-kw="tip: ">tip</button>
-        <button class="kw-btn callout" data-kw="success: ">success</button>
-        <span class="toolbar-sep"></span>
+        <button class="kw-btn agentic" data-kw="result:  | code: ">
+          result
+        </button>
+        <button class="kw-btn agentic" data-kw="status:  | phase: ">
+          status
+        </button>
         <button class="kw-btn" data-kw="| Col 1 | Col 2 | Col 3 |">
           table
         </button>
-        <button class="kw-btn" data-kw="---">divider</button>
         <button class="kw-btn" data-kw="link:  | to: ">link</button>
-        <button class="kw-btn" data-kw="image:  | at: ">image</button>
       </div>
 
       <!-- ── Main workspace ─────────────────────────────────── -->
@@ -92,6 +119,7 @@
           <div id="monaco-editor" class="monaco-container"></div>
           <div class="status-bar" id="status-bar">
             <span id="stats">0 blocks · 0 lines</span>
+            <span id="doc-version"></span>
             <span id="save-status"></span>
           </div>
         </div>
@@ -105,6 +133,7 @@
             <button class="preview-tab active" data-preview="rendered">
               Preview
             </button>
+            <button class="preview-tab" data-preview="json">JSON</button>
             <button class="preview-tab" data-preview="html">HTML</button>
             <button class="preview-tab" data-preview="markdown">
               Markdown
@@ -115,9 +144,22 @@
             id="preview-rendered"
             data-preview="rendered"
           >
-            <p class="preview-empty">
-              Start writing on the left to see a live preview…
-            </p>
+            <div class="preview-welcome">
+              <div class="welcome-icon">✦</div>
+              <h2>IntentText Playground</h2>
+              <p>
+                Write structured documents and agent workflows.<br />
+                Pick a template from <strong>+ New</strong> or start typing.
+              </p>
+              <div class="welcome-hints">
+                <span class="welcome-hint">📄 Human docs</span>
+                <span class="welcome-hint">🤖 Agent workflows</span>
+                <span class="welcome-hint">🤝 Multi-agent handoffs</span>
+              </div>
+            </div>
+          </div>
+          <div class="preview-content" id="preview-json" data-preview="json">
+            <pre><code id="json-code"></code></pre>
           </div>
           <div class="preview-content" id="preview-html" data-preview="html">
             <pre><code id="html-code"></code></pre>
@@ -141,18 +183,31 @@
             <label>Block type</label>
             <select id="query-type">
               <option value="">All types</option>
-              <option value="task">Tasks</option>
-              <option value="done">Completed</option>
-              <option value="note">Notes</option>
-              <option value="section">Sections</option>
-              <option value="question">Questions</option>
-              <option value="info">Info</option>
-              <option value="warning">Warnings</option>
+              <optgroup label="Content">
+                <option value="task">Tasks</option>
+                <option value="note">Notes</option>
+                <option value="section">Sections</option>
+              </optgroup>
+              <optgroup label="Agentic">
+                <option value="step">Steps</option>
+                <option value="decision">Decisions</option>
+                <option value="handoff">Handoffs</option>
+                <option value="wait">Waits</option>
+                <option value="parallel">Parallel</option>
+                <option value="retry">Retries</option>
+                <option value="result">Results</option>
+                <option value="status">Status</option>
+                <option value="audit">Audits</option>
+              </optgroup>
             </select>
             <label>Contains text</label>
             <input type="text" id="query-text" placeholder="Search content…" />
-            <label>Owner</label>
-            <input type="text" id="query-owner" placeholder="e.g. Ahmed" />
+            <label>Owner / Agent</label>
+            <input
+              type="text"
+              id="query-owner"
+              placeholder="e.g. deploy-agent"
+            />
             <button class="btn primary full-width" id="query-apply">
               Apply Filter
             </button>
@@ -204,120 +259,153 @@
               <h4>Structure</h4>
               <div class="help-row">
                 <code>title: My Document</code>
-                <span>Document title (H1)</span>
+                <span>Document title</span>
               </div>
               <div class="help-row">
-                <code>section: Chapter One</code>
-                <span>Section heading (H2)</span>
+                <code>section: Chapter</code>
+                <span>Section heading</span>
               </div>
               <div class="help-row">
                 <code>sub: Details</code>
-                <span>Subsection (H3)</span>
+                <span>Subsection</span>
               </div>
-              <div class="help-row">
-                <code>---</code><span>Horizontal divider</span>
-              </div>
+              <div class="help-row"><code>---</code><span>Divider</span></div>
             </div>
             <div class="help-section">
               <h4>Content</h4>
               <div class="help-row">
-                <code>note: Some text here</code>
-                <span>Paragraph / note</span>
+                <code>task: Do X | owner: Y | due: Z</code>
+                <span>Task with metadata</span>
               </div>
               <div class="help-row">
-                <code>quote: Words of wisdom</code>
-                <span>Blockquote</span>
-              </div>
-              <div class="help-row">
-                <code>summary: Key takeaway</code>
-                <span>Summary box</span>
-              </div>
-              <div class="help-row">
-                <code>question: How does this work?</code>
-                <span>Question callout</span>
-              </div>
-            </div>
-            <div class="help-section">
-              <h4>Tasks</h4>
-              <div class="help-row">
-                <code>task: Do something | owner: Ahmed | due: 2026-03-15</code>
-                <span>Open task with metadata</span>
-              </div>
-              <div class="help-row">
-                <code>done: Finished this | time: 2h</code>
+                <code>done: Finished | time: 2h</code>
                 <span>Completed task</span>
               </div>
               <div class="help-row">
-                <code>[ ] Quick task @owner !high</code>
-                <span>Checkbox shorthand</span>
+                <code>note: Text</code>
+                <span>Paragraph</span>
               </div>
               <div class="help-row">
-                <code>[x] Completed checkbox</code>
-                <span>Done checkbox</span>
+                <code>ask: How?</code>
+                <span>Question</span>
+              </div>
+              <div class="help-row">
+                <code>quote: Words | by: Author</code>
+                <span>Blockquote</span>
               </div>
             </div>
             <div class="help-section">
               <h4>Callouts</h4>
               <div class="help-row">
-                <code>info: Informational note</code>
-                <span class="help-color info">ℹ️ Info block</span>
+                <code>info:</code>
+                <span class="help-color info">Info</span>
               </div>
               <div class="help-row">
-                <code>warning: Be careful</code>
-                <span class="help-color warning">⚠️ Warning block</span>
+                <code>warning:</code>
+                <span class="help-color warning">Warning</span>
               </div>
               <div class="help-row">
-                <code>tip: Pro tip here</code>
-                <span class="help-color tip">💡 Tip block</span>
+                <code>tip:</code>
+                <span class="help-color tip">Tip</span>
               </div>
               <div class="help-row">
-                <code>success: It worked!</code>
-                <span class="help-color success">✅ Success block</span>
+                <code>success:</code>
+                <span class="help-color success">Success</span>
               </div>
             </div>
             <div class="help-section">
               <h4>Formatting</h4>
+              <div class="help-row"><code>*bold*</code><span>Bold</span></div>
               <div class="help-row">
-                <code>*bold text*</code><span>Bold</span>
+                <code>_italic_</code><span>Italic</span>
               </div>
               <div class="help-row">
-                <code>_italic text_</code><span>Italic</span>
+                <code>~strike~</code><span>Strikethrough</span>
+              </div>
+              <div class="help-row"><code>`code`</code><span>Code</span></div>
+              <div class="help-row">
+                <code>[text](url)</code><span>Link</span>
+              </div>
+            </div>
+            <div class="help-section help-agentic">
+              <h4>Agentic Workflows (v2)</h4>
+              <div class="help-row">
+                <code>step: X | tool: Y</code>
+                <span>Workflow step</span>
               </div>
               <div class="help-row">
-                <code>~strikethrough~</code><span>Strikethrough</span>
+                <code>decision: X | if: Y | then: Z</code>
+                <span>Conditional branch</span>
               </div>
               <div class="help-row">
-                <code>`inline code`</code><span>Inline code</span>
+                <code>trigger: X | event: Y</code>
+                <span>Workflow start</span>
               </div>
               <div class="help-row">
-                <code>[Link text](https://url.com)</code>
-                <span>Inline link</span>
+                <code>loop: X | over: Y | do: Z</code>
+                <span>Iteration</span>
+              </div>
+              <div class="help-row">
+                <code>error: X | fallback: Y</code>
+                <span>Error handler</span>
+              </div>
+              <div class="help-row">
+                <code>checkpoint: name</code>
+                <span>Resume point</span>
+              </div>
+              <div class="help-row">
+                <code>audit: X | by: Y</code>
+                <span>Execution log</span>
+              </div>
+            </div>
+            <div class="help-section help-agentic">
+              <h4>Inter-Agent (v2.1)</h4>
+              <div class="help-row">
+                <code>handoff: X | from: A | to: B</code>
+                <span>Agent transfer</span>
+              </div>
+              <div class="help-row">
+                <code>wait: X | timeout: 30s</code>
+                <span>Async pause</span>
+              </div>
+              <div class="help-row">
+                <code>parallel: X | steps: a,b,c</code>
+                <span>Concurrent steps</span>
+              </div>
+              <div class="help-row">
+                <code>retry: X | max: 3 | delay: 1000</code>
+                <span>Retry policy</span>
+              </div>
+              <div class="help-row">
+                <code>result: X | code: 200</code>
+                <span>Execution output</span>
+              </div>
+              <div class="help-row">
+                <code>status: X | phase: Y | level: Z</code>
+                <span>Workflow status</span>
               </div>
             </div>
             <div class="help-section">
-              <h4>Tables</h4>
+              <h4>Metadata</h4>
               <div class="help-row">
-                <code>| Name | Age | City |</code>
-                <span>First row = headers</span>
+                <code>agent: name | model: gpt-4o</code>
+                <span>Doc metadata</span>
               </div>
               <div class="help-row">
-                <code>| Ahmed | 30 | Dubai |</code>
-                <span>Data rows follow</span>
-              </div>
-            </div>
-            <div class="help-section">
-              <h4>Metadata (pipe syntax)</h4>
-              <div class="help-row">
-                <code>task: Build feature | owner: Sarah | priority: high</code>
-                <span>Add properties with |</span>
+                <code>context: key = "value"</code>
+                <span>Variables</span>
               </div>
               <div class="help-row">
-                <code>image: Logo | at: logo.png | caption: Our logo</code>
-                <span>Image with attributes</span>
+                <code>| Col | Col |</code>
+                <span>Table</span>
               </div>
               <div class="help-row">
-                <code>link: Homepage | to: https://example.com</code>
-                <span>Named link</span>
+                <code>link: X | to: url</code>
+                <span>Link</span>
+              </div>
+              <div class="help-row">
+                <code>image: X | at: path</code>
+                <span>Image</span>
               </div>
             </div>
           </div>

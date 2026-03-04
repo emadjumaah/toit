@@ -26,6 +26,13 @@ function registerIntentTextLanguage(): void {
         [/^(task|done):/, "keyword.task"],
         // Checkbox shorthand
         [/^\[[ x]\]/, "keyword.task"],
+        // Agentic keywords (v2)
+        [
+          /^(step|decision|trigger|loop|checkpoint|audit|error|context):/,
+          "keyword.agentic",
+        ],
+        // Inter-agent keywords (v2.1)
+        [/^(handoff|wait|parallel|retry|result|status):/, "keyword.interagent"],
         // Content keywords
         [/^(note|quote|summary|question|ask):/, "keyword.content"],
         // Callout keywords
@@ -40,7 +47,7 @@ function registerIntentTextLanguage(): void {
         [/\|/, "delimiter.pipe"],
         // Metadata keys
         [
-          /\b(owner|due|priority|time|status|at|to|caption)(?=:)/,
+          /\b(owner|due|priority|time|status|at|to|caption|tool|input|depends|id|event|if|then|else|over|do|fallback|notify|from|timeout|max|delay|backoff|steps|code|data|phase|level|model|agent|retries)(?=:)/,
           "type.metadata",
         ],
         // Shorthand tokens
@@ -67,6 +74,8 @@ function registerIntentTextLanguage(): void {
       { token: "keyword.task", foreground: "D97706", fontStyle: "bold" },
       { token: "keyword.content", foreground: "2563EB" },
       { token: "keyword.callout", foreground: "059669", fontStyle: "bold" },
+      { token: "keyword.agentic", foreground: "0369A1", fontStyle: "bold" },
+      { token: "keyword.interagent", foreground: "9333EA", fontStyle: "bold" },
       { token: "keyword.media", foreground: "7C3AED" },
       { token: "keyword.divider", foreground: "9CA3AF" },
       { token: "keyword.table", foreground: "6366F1" },
@@ -91,12 +100,39 @@ function registerIntentTextLanguage(): void {
 // ── Helper: IntentText to Markdown ─────────────────────────
 function convertToMarkdown(doc: IntentDocument): string {
   const lines: string[] = [];
+
+  // Collect metadata header if present
+  const metaProps: string[] = [];
+  if (doc.metadata) {
+    const m = doc.metadata;
+    if (m.agent) metaProps.push(`**Agent:** ${m.agent}`);
+    if (m.model) metaProps.push(`**Model:** ${m.model}`);
+    if (m.version) metaProps.push(`**Version:** ${m.version}`);
+  }
+
+  // Helper: format pipe-separated properties as inline metadata
+  function fmtProps(props: Record<string, unknown>, keys: string[]): string {
+    const parts: string[] = [];
+    for (const k of keys) {
+      if (props[k] != null && String(props[k]).trim()) {
+        parts.push(`\`${k}: ${props[k]}\``);
+      }
+    }
+    return parts.length ? "  " + parts.join("  ") : "";
+  }
+
   for (const block of doc.blocks) {
     const content = block.content ?? "";
     const props = block.properties ?? {};
+
     switch (block.type) {
+      // ── Structure ──
       case "title":
         lines.push(`# ${content}`);
+        if (metaProps.length) {
+          lines.push("");
+          lines.push(metaProps.join(" · "));
+        }
         break;
       case "section":
         lines.push(`\n## ${content}`);
@@ -104,44 +140,59 @@ function convertToMarkdown(doc: IntentDocument): string {
       case "sub":
         lines.push(`\n### ${content}`);
         break;
+      case "divider":
+        lines.push("\n---\n");
+        break;
+
+      // ── Content ──
       case "note":
       case "body-text":
         lines.push(`\n${content}`);
         break;
       case "task": {
-        const parts = [`- [ ] ${content}`];
-        if (props.owner) parts.push(`*(${props.owner})*`);
-        if (props.due) parts.push(`[due: ${props.due}]`);
-        lines.push(parts.join(" "));
+        const meta: string[] = [];
+        if (props.owner) meta.push(`@${props.owner}`);
+        if (props.due) meta.push(`due: ${props.due}`);
+        if (props.priority) meta.push(`!${props.priority}`);
+        const suffix = meta.length ? `  *(${meta.join(", ")})*` : "";
+        lines.push(`- [ ] ${content}${suffix}`);
         break;
       }
       case "done": {
-        const parts = [`- [x] ~~${content}~~`];
-        if (props.owner) parts.push(`*(${props.owner})*`);
-        lines.push(parts.join(" "));
+        const meta: string[] = [];
+        if (props.owner) meta.push(`@${props.owner}`);
+        if (props.time) meta.push(`${props.time}`);
+        const suffix = meta.length ? `  *(${meta.join(", ")})*` : "";
+        lines.push(`- [x] ~~${content}~~${suffix}`);
         break;
       }
-      case "quote":
-        lines.push(`\n> ${content}`);
+      case "ask":
+        lines.push(`\n> **❓ Question:** ${content}`);
         break;
+      case "quote": {
+        const cite = props.by ? `\n> — *${props.by}*` : "";
+        lines.push(`\n> ${content}${cite}`);
+        break;
+      }
       case "summary":
         lines.push(`\n> **Summary:** ${content}`);
         break;
-      case "ask":
-        lines.push(`\n> **Question:** ${content}`);
-        break;
+
+      // ── Callouts ──
       case "info":
-        lines.push(`\n> **Info:** ${content}`);
+        lines.push(`\n> **ℹ️ Info:** ${content}`);
         break;
       case "warning":
-        lines.push(`\n> **Warning:** ${content}`);
+        lines.push(`\n> **⚠️ Warning:** ${content}`);
         break;
       case "tip":
-        lines.push(`\n> **Tip:** ${content}`);
+        lines.push(`\n> **💡 Tip:** ${content}`);
         break;
       case "success":
-        lines.push(`\n> **Success:** ${content}`);
+        lines.push(`\n> **✅ Success:** ${content}`);
         break;
+
+      // ── Media ──
       case "link":
         lines.push(`[${content}](${props.to ?? props.url ?? "#"})`);
         break;
@@ -150,27 +201,119 @@ function convertToMarkdown(doc: IntentDocument): string {
           `![${props.caption ?? content}](${props.at ?? props.src ?? ""})`,
         );
         break;
-      case "divider":
-        lines.push("\n---\n");
-        break;
-      case "table":
-        if (block.table && block.table.rows.length > 0) {
-          if (block.table.headers) {
-            lines.push(`| ${block.table.headers.join(" | ")} |`);
-            lines.push(
-              `| ${block.table.headers.map(() => "---").join(" | ")} |`,
-            );
-          }
-          for (const row of block.table.rows) {
-            lines.push(`| ${row.join(" | ")} |`);
-          }
-        }
-        break;
       case "code":
         lines.push("```");
         lines.push(content);
         lines.push("```");
         break;
+      case "table":
+        if (block.table) {
+          if (block.table.headers) {
+            lines.push(`\n| ${block.table.headers.join(" | ")} |`);
+            lines.push(
+              `| ${block.table.headers.map(() => "---").join(" | ")} |`,
+            );
+          }
+          for (const row of block.table?.rows ?? []) {
+            lines.push(`| ${row.join(" | ")} |`);
+          }
+        }
+        break;
+
+      // ── Agentic v2 ──
+      case "step": {
+        const meta = fmtProps(props, [
+          "id",
+          "tool",
+          "input",
+          "depends",
+          "timeout",
+          "status",
+        ]);
+        lines.push(`- ▶ **Step:** ${content}${meta}`);
+        break;
+      }
+      case "decision": {
+        const cond = props.if ? `\n  - if \`${props.if}\`` : "";
+        const then_ = props.then ? ` → \`${props.then}\`` : "";
+        const else_ = props.else ? ` · else → \`${props.else}\`` : "";
+        lines.push(`- ◆ **Decision:** ${content}${cond}${then_}${else_}`);
+        break;
+      }
+      case "trigger": {
+        const meta = fmtProps(props, ["event"]);
+        lines.push(`- ⚡ **Trigger:** ${content}${meta}`);
+        break;
+      }
+      case "loop": {
+        const over = props.over ? ` over \`${props.over}\`` : "";
+        const do_ = props.do ? ` → \`${props.do}\`` : "";
+        lines.push(`- 🔁 **Loop:** ${content}${over}${do_}`);
+        break;
+      }
+      case "checkpoint":
+        lines.push(`\n---  🏁 **Checkpoint:** ${content}  ---\n`);
+        break;
+      case "audit": {
+        const by = props.by ? ` — *${props.by}*` : "";
+        const at = props.at ? ` at ${props.at}` : "";
+        lines.push(`> 📝 *Audit:* ${content}${by}${at}`);
+        break;
+      }
+      case "error": {
+        const fallback = props.fallback
+          ? ` → fallback: \`${props.fallback}\``
+          : "";
+        const notify = props.notify ? ` · notify: ${props.notify}` : "";
+        lines.push(`> ❌ **Error:** ${content}${fallback}${notify}`);
+        break;
+      }
+      case "context": {
+        // context blocks often hold key=value pairs
+        lines.push(`> 🔧 *Context:* \`${content}\``);
+        break;
+      }
+      case "progress": {
+        lines.push(`> 📊 *Progress:* ${content}`);
+        break;
+      }
+
+      // ── Inter-Agent v2.1 ──
+      case "handoff": {
+        const from = props.from ? `\`${props.from}\`` : "?";
+        const to = props.to ? `\`${props.to}\`` : "?";
+        lines.push(`- 🤝 **Handoff:** ${content}  ${from} → ${to}`);
+        break;
+      }
+      case "wait": {
+        const meta = fmtProps(props, ["timeout", "fallback"]);
+        lines.push(`- ⏳ **Wait:** ${content}${meta}`);
+        break;
+      }
+      case "parallel": {
+        const steps = props.steps ? `  steps: \`${props.steps}\`` : "";
+        lines.push(`- ⏩ **Parallel:** ${content}${steps}`);
+        break;
+      }
+      case "retry": {
+        const meta = fmtProps(props, ["max", "delay", "backoff"]);
+        lines.push(`- 🔄 **Retry:** ${content}${meta}`);
+        break;
+      }
+      case "result": {
+        const code = props.code ? ` \`[${props.code}]\`` : "";
+        const data = props.data
+          ? `\n  \`\`\`json\n  ${props.data}\n  \`\`\``
+          : "";
+        lines.push(`- ✅ **Result:** ${content}${code}${data}`);
+        break;
+      }
+      case "status": {
+        const meta = fmtProps(props, ["phase", "level"]);
+        lines.push(`> 📌 **Status:** ${content}${meta}`);
+        break;
+      }
+
       default:
         if (content) lines.push(content);
     }
@@ -207,7 +350,7 @@ export class IntentTextApp {
       theme: "it-light",
       fontSize: 14,
       lineHeight: 22,
-      fontFamily: '"SF Mono", "Fira Code", "JetBrains Mono", monospace',
+      fontFamily: '"JetBrains Mono", "SF Mono", "Fira Code", monospace',
       minimap: { enabled: false },
       wordWrap: "on",
       padding: { top: 12, bottom: 12 },
@@ -403,17 +546,35 @@ export class IntentTextApp {
   private buildTemplateMenu(): void {
     const menu = document.getElementById("new-menu")!;
     menu.innerHTML = "";
-    for (const tpl of TEMPLATES) {
-      const item = document.createElement("button");
-      item.className = "dropdown-item";
-      item.innerHTML = `<span class="template-icon">${tpl.icon}</span>${tpl.name}<span class="template-desc">${tpl.description}</span>`;
-      item.addEventListener("click", () => {
-        this.editor.setValue(tpl.content);
-        this.editor.setPosition({ lineNumber: 1, column: 1 });
-        this.editor.focus();
-        this.closeDropdowns();
-      });
-      menu.appendChild(item);
+
+    const categoryLabels: Record<string, string> = {
+      agent: "🤖 Agent Workflows",
+      human: "👤 Human Documents",
+      docs: "📄 Docs & Planning",
+    };
+
+    const categories = ["agent", "human", "docs"];
+    for (const cat of categories) {
+      const catTemplates = TEMPLATES.filter((t) => t.category === cat);
+      if (catTemplates.length === 0) continue;
+
+      const header = document.createElement("div");
+      header.className = "dropdown-header";
+      header.textContent = categoryLabels[cat] ?? cat;
+      menu.appendChild(header);
+
+      for (const tpl of catTemplates) {
+        const item = document.createElement("button");
+        item.className = "dropdown-item";
+        item.innerHTML = `<span class="template-icon">${tpl.icon}</span>${tpl.name}<span class="template-desc">${tpl.description}</span>`;
+        item.addEventListener("click", () => {
+          this.editor.setValue(tpl.content);
+          this.editor.setPosition({ lineNumber: 1, column: 1 });
+          this.editor.focus();
+          this.closeDropdowns();
+        });
+        menu.appendChild(item);
+      }
     }
   }
 
@@ -472,12 +633,20 @@ export class IntentTextApp {
 
     // Rendered preview
     const rendered = document.getElementById("preview-rendered")!;
+    const welcome = rendered.querySelector(".preview-welcome");
     if (!source.trim()) {
-      rendered.innerHTML =
-        '<p class="preview-empty">Start writing on the left to see a live preview\u2026</p>';
+      // Show welcome if it exists, otherwise add empty message
+      if (!welcome) {
+        rendered.innerHTML =
+          '<p class="preview-empty">Start writing on the left to see a live preview\u2026</p>';
+      }
     } else {
       rendered.innerHTML = renderHTML(doc);
     }
+
+    // JSON code view
+    const jsonCode = document.getElementById("json-code")!;
+    jsonCode.textContent = source.trim() ? JSON.stringify(doc, null, 2) : "";
 
     // HTML code view
     const htmlCode = document.getElementById("html-code")!;
