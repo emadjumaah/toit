@@ -31,8 +31,11 @@ function registerIntentTextLanguage(): void {
           /^(step|decision|trigger|loop|checkpoint|audit|error|context):/,
           "keyword.agentic",
         ],
-        // Inter-agent keywords (v2.1)
-        [/^(handoff|wait|parallel|retry|result|status):/, "keyword.interagent"],
+        // Inter-agent keywords (v2.1+)
+        [
+          /^(handoff|wait|parallel|retry|result|gate|call|emit):/,
+          "keyword.interagent",
+        ],
         // Content keywords
         [/^(note|quote|summary|question|ask):/, "keyword.content"],
         // Callout keywords
@@ -47,12 +50,14 @@ function registerIntentTextLanguage(): void {
         [/\|/, "delimiter.pipe"],
         // Metadata keys
         [
-          /\b(owner|due|priority|time|status|at|to|caption|tool|input|depends|id|event|if|then|else|over|do|fallback|notify|from|timeout|max|delay|backoff|steps|code|data|phase|level|model|agent|retries)(?=:)/,
+          /\b(owner|due|priority|time|status|at|to|caption|tool|input|depends|id|event|if|then|else|over|do|fallback|notify|from|timeout|max|delay|backoff|steps|code|data|phase|level|model|agent|retries|join|on|approver)(?=:)/,
           "type.metadata",
         ],
         // Shorthand tokens
         [/@\w+/, "type.owner"],
         [/!\w+/, "type.priority"],
+        // Variable references
+        [/\{\{[\w.]+\}\}/, "variable.ref"],
         // Inline formatting
         [/\*[^*]+\*/, "strong"],
         [/_[^_]+_/, "emphasis"],
@@ -83,6 +88,7 @@ function registerIntentTextLanguage(): void {
       { token: "type.metadata", foreground: "0891B2" },
       { token: "type.owner", foreground: "DB2777" },
       { token: "type.priority", foreground: "DC2626" },
+      { token: "variable.ref", foreground: "B45309", fontStyle: "bold" },
       { token: "strong", fontStyle: "bold" },
       { token: "emphasis", fontStyle: "italic" },
       { token: "strikethrough", foreground: "9CA3AF" },
@@ -308,9 +314,19 @@ function convertToMarkdown(doc: IntentDocument): string {
         lines.push(`- ✅ **Result:** ${content}${code}${data}`);
         break;
       }
-      case "status": {
+      case "emit": {
         const meta = fmtProps(props, ["phase", "level"]);
-        lines.push(`> 📌 **Status:** ${content}${meta}`);
+        lines.push(`> 📡 **Emit:** ${content}${meta}`);
+        break;
+      }
+      case "gate": {
+        const meta = fmtProps(props, ["status", "approver"]);
+        lines.push(`> 🛑 **Gate:** ${content}${meta}`);
+        break;
+      }
+      case "call": {
+        const meta = fmtProps(props, ["status", "timeout"]);
+        lines.push(`> 📞 **Call:** ${content}${meta}`);
         break;
       }
 

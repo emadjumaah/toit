@@ -23,7 +23,7 @@ section: Intake
 trigger: ticket.created | event: support.new
 step: Classify ticket | tool: classifier.run | input: ticketText
 result: Classification complete | code: 200 | data: {"category":"billing","urgency":"high"}
-status: Classified | phase: triage | level: info
+emit: Classified | phase: triage | level: info
 
 section: Routing
 decision: Route by category | if: category == "billing" | then: step-billing | else: step-general
@@ -31,6 +31,7 @@ handoff: Transfer to billing | from: triage-agent | to: billing-agent
 wait: Billing agent response | timeout: 30s | fallback: escalate
 
 section: Resolution
+call: Get customer history | status: complete | timeout: 5s
 step: Draft response | id: step-billing | tool: response.generate | depends: step-2
 retry: Send confirmation email | max: 3 | delay: 1000 | backoff: exponential
 result: Ticket resolved | code: 200 | data: {"resolution":"refund_processed"}
@@ -69,7 +70,8 @@ step: Abort pipeline | id: step-abort | tool: ci.abort | status: cancelled
 section: Post-Deploy
 result: Deployed v2.1.0 to production | code: 200
 handoff: Transfer monitoring | from: deploy-agent | to: observability-agent
-status: Live | phase: monitoring | level: info
+gate: Production approval | status: approved | approver: ops-lead
+emit: Live | phase: monitoring | level: info
 audit: Deployment complete | by: deploy-agent | at: {{timestamp}}`,
   },
   {
