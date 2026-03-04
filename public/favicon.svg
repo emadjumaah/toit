@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <!-- Dark rounded background -->
-  <rect width="32" height="32" rx="7" fill="#1a1f2e"/>
-  <!-- .it text (lowercase) -->
-  <text x="16" y="20" text-anchor="middle" font-family="Monaco, Menlo, Consolas, monospace" font-size="12" fill="#818cf8">.it</text>
-</svg>

@@ -72,7 +72,7 @@ src/
   main.ts          Entry point
 
 public/
-  favicon.svg      SVG favicon
+  favicon.ico      PNG favicon
 
 index.html         Web-to-IT page
 it-to-web.html     IT-to-Web page
