@@ -17,7 +17,7 @@ export const TEMPLATES: Template[] = [
     description: "Multi-agent customer support triage",
     content: `title: Customer Support Pipeline
 agent: triage-agent | model: gpt-4o
-context: ticketId = "T-4821" | channel = "chat"
+context: | ticketId: T-4821 | channel: chat
 
 section: Intake
 trigger: ticket.created | event: support.new
@@ -47,7 +47,7 @@ audit: Ticket resolved | by: billing-agent | at: {{timestamp}}`,
     description: "CI/CD deployment with rollback",
     content: `title: Production Deployment Pipeline
 agent: deploy-agent | model: claude-sonnet-4
-context: env = "production" | branch = "main" | version = "2.1.0"
+context: | env: production | branch: main | version: 2.1.0
 
 section: Pre-Deploy Checks
 parallel: Run all checks | steps: test,lint,typecheck,security-scan
@@ -82,7 +82,7 @@ audit: Deployment complete | by: deploy-agent | at: {{timestamp}}`,
     description: "ETL workflow with retry and parallelism",
     content: `title: Daily Data Sync Pipeline
 agent: etl-agent | model: gpt-4o
-context: source = "postgres" | target = "warehouse" | date = "2026-03-04"
+context: | source: postgres | target: warehouse | date: 2026-03-04
 
 section: Extract
 trigger: schedule | event: cron.daily
@@ -116,7 +116,7 @@ audit: Daily sync finished | by: etl-agent | at: {{timestamp}}`,
     description: "Agent-executed onboarding flow",
     content: `title: User Onboarding Flow
 agent: onboard-agent | model: claude-sonnet-4
-context: userId = "u_123" | plan = "pro"
+context: | userId: u_123 | plan: pro
 
 section: Verification
 step: Verify email address | tool: email.verify | input: userId | output: emailStatus
@@ -144,7 +144,7 @@ audit: Onboarding finished | by: onboard-agent | at: {{timestamp}}`,
     description: "Marketing campaign with AI generation",
     content: `title: Q2 Product Launch Campaign
 agent: marketing-agent | model: claude-sonnet-4
-context: product = "IntentText v2.1" | audience = "developers"
+context: | product: IntentText v2.3 | audience: developers
 
 section: Research
 step: Analyze competitor campaigns | tool: research.competitors | timeout: 120000
