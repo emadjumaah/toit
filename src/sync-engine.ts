@@ -49,8 +49,9 @@ export class SyncEngine {
 
     lines[lineIdx] = newLine;
     this.source = lines.join("\n");
-    // Re-parse to keep doc in sync, but don't notify (avoids re-render loop)
-    this.doc = this.safeParse(this.source);
+    // Update block content directly — do NOT re-parse.
+    // Re-parsing would regenerate all block IDs, breaking DOM references.
+    block.content = newText;
   }
 
   /** Change block type (e.g. slash menu selection) */
@@ -82,11 +83,14 @@ export class SyncEngine {
   ): string {
     const lines = this.source.split("\n");
     let insertIdx: number;
+    let blockPosition = -1; // position in flattened block list
 
     if (afterId) {
       const block = this.findBlock(afterId);
       if (block) {
         insertIdx = this.findBlockLineIndex(block, lines) + 1;
+        const allBlocks = this.flattenBlocks(this.doc.blocks);
+        blockPosition = allBlocks.indexOf(block);
       } else {
         insertIdx = lines.length;
       }
@@ -99,13 +103,15 @@ export class SyncEngine {
     this.source = lines.join("\n");
     this.doc = this.safeParse(this.source);
 
-    // Return the ID of the newly created block
-    const newBlock = this.doc.blocks.find((_b, i) => {
-      const prevBlock = this.doc.blocks[i - 1];
-      if (afterId && prevBlock?.id === afterId) return true;
-      if (!afterId && i === this.doc.blocks.length - 1) return true;
-      return false;
-    });
+    // Find the newly created block by positional index
+    // (can't match by old IDs since re-parse generates new ones)
+    const allNewBlocks = this.flattenBlocks(this.doc.blocks);
+    let newBlock;
+    if (blockPosition >= 0 && blockPosition + 1 < allNewBlocks.length) {
+      newBlock = allNewBlocks[blockPosition + 1];
+    } else {
+      newBlock = allNewBlocks[allNewBlocks.length - 1];
+    }
     this.notify();
     return newBlock?.id ?? "";
   }
@@ -139,6 +145,30 @@ export class SyncEngine {
 
     // Swap lines
     [lines[lineIdx], lines[targetIdx]] = [lines[targetIdx], lines[lineIdx]];
+    this.source = lines.join("\n");
+    this.doc = this.safeParse(this.source);
+    this.notify();
+  }
+
+  /** Merge two blocks: append secondId's content to firstId, then delete secondId */
+  mergeBlocks(firstId: string, secondId: string): void {
+    const firstBlock = this.findBlock(firstId);
+    const secondBlock = this.findBlock(secondId);
+    if (!firstBlock || !secondBlock) return;
+
+    const lines = this.source.split("\n");
+    const firstLineIdx = this.findBlockLineIndex(firstBlock, lines);
+    const secondLineIdx = this.findBlockLineIndex(secondBlock, lines);
+    if (firstLineIdx === -1 || secondLineIdx === -1) return;
+
+    const mergedContent =
+      (firstBlock.content ?? "") + (secondBlock.content ?? "");
+    lines[firstLineIdx] = this.reconstructLine(
+      firstBlock.type,
+      mergedContent,
+      firstBlock.properties,
+    );
+    lines.splice(secondLineIdx, 1);
     this.source = lines.join("\n");
     this.doc = this.safeParse(this.source);
     this.notify();

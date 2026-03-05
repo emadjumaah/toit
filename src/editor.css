@@ -193,8 +193,19 @@ body {
   border: none;
   background: transparent;
   color: var(--color-muted);
+  cursor: pointer;
 }
 .it-block-toolbar .it-btn:hover { color: var(--chrome-text); background: var(--tab-hover); }
+.it-toolbar-sep {
+  width: 1px;
+  height: 16px;
+  background: var(--chrome-border);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+.it-btn--fmt { font-size: 12px; min-width: 24px; text-align: center; }
+.it-btn--kw { font-size: 11px; color: #a6adc8; }
+.it-btn--kw:hover { color: var(--tab-active); }
 
 /* ── Restore Banner ─────────────────────────────────────── */
 .it-restore-banner {
@@ -340,7 +351,7 @@ body {
 }
 .it-block__content:focus { outline: none; }
 .it-block__content:empty::before {
-  content: "Type something...";
+  content: attr(data-placeholder);
   color: var(--color-muted);
   pointer-events: none;
 }

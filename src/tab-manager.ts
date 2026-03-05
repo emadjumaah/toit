@@ -111,10 +111,14 @@ export class TabManager {
   }
 
   switchTab(tabId: TabId): void {
+    const prevTab = this.activeTab;
+
     // Save state from current tab before switching
-    if (this.activeTab === "source" && tabId !== "source") {
-      const source = this.sourceEditor!.getValue();
-      this.sync.setSource(source);
+    if (prevTab === "source" && tabId !== "source") {
+      const newSource = this.sourceEditor!.getValue();
+      if (newSource !== this.sync.getSource()) {
+        this.sync.setSource(newSource);
+      }
     }
 
     this.activeTab = tabId;
@@ -132,7 +136,12 @@ export class TabManager {
 
     // Update content for the active tab
     if (tabId === "edit") {
-      this.blockEditor?.render();
+      if (prevTab === "source") {
+        // Came from source — full re-render since user may have edited raw .it
+        this.blockEditor?.render();
+      } else {
+        this.blockEditor?.render();
+      }
     } else if (tabId === "source") {
       this.sourceEditor?.setValue(this.sync.getSource());
       this.sourceEditor?.layout();
@@ -143,6 +152,11 @@ export class TabManager {
     } else if (tabId === "print") {
       this.updatePrintView();
     }
+  }
+
+  /** Get the underlying block editor */
+  getBlockEditor(): BlockEditor | null {
+    return this.blockEditor;
   }
 
   /** Get the underlying source editor (for file-ops and other integrations) */

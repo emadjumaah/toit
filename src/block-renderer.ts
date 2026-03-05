@@ -11,27 +11,32 @@ function esc(text: string): string {
   return d.innerHTML;
 }
 
+/** Convert literal \\n escape sequences to <br> for soft line breaks */
+function softBreaks(html: string): string {
+  return html.replace(/\\n/g, "<br>");
+}
+
 /** Render inline nodes to HTML string */
 function renderInline(block: IntentBlock): string {
   if (!block.inline || block.inline.length === 0)
-    return esc(block.content ?? "");
+    return softBreaks(esc(block.content ?? ""));
   return block.inline
     .map((n) => {
       switch (n.type) {
         case "bold":
-          return `<strong>${esc(n.value)}</strong>`;
+          return `<strong>${softBreaks(esc(n.value))}</strong>`;
         case "italic":
-          return `<em>${esc(n.value)}</em>`;
+          return `<em>${softBreaks(esc(n.value))}</em>`;
         case "strike":
-          return `<s>${esc(n.value)}</s>`;
+          return `<s>${softBreaks(esc(n.value))}</s>`;
         case "code":
           return `<code>${esc(n.value)}</code>`;
         case "highlight":
-          return `<mark>${esc(n.value)}</mark>`;
+          return `<mark>${softBreaks(esc(n.value))}</mark>`;
         case "link":
-          return `<a href="${esc(n.href)}">${esc(n.value)}</a>`;
+          return `<a href="${esc(n.href)}">${softBreaks(esc(n.value))}</a>`;
         default:
-          return esc((n as { value: string }).value ?? "");
+          return softBreaks(esc((n as { value: string }).value ?? ""));
       }
     })
     .join("");

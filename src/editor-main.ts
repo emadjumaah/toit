@@ -207,9 +207,9 @@ exportBtn?.addEventListener("click", (e) => {
 });
 document.addEventListener("click", () => exportMenu?.classList.remove("open"));
 
-// Toolbar listens for sync changes to re-render block editor
-sync.onChange(() => {
-  if (tabManager.getActiveTab() === "edit") {
-    tabManager.refreshBlockEditor();
-  }
-});
+// Wire up the block editor to toolbar and file-ops
+const blockEditor = tabManager.getBlockEditor();
+if (blockEditor) {
+  toolbar.setBlockEditor(blockEditor);
+  fileOps.setBlockEditor(blockEditor);
+}

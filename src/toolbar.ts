@@ -2,9 +2,11 @@
 // Selection toolbar (floating on text select) + fixed block toolbar.
 
 import { SyncEngine } from "./sync-engine";
+import type { BlockEditor } from "./block-editor";
 
 export class Toolbar {
   private sync: SyncEngine;
+  private blockEditor: BlockEditor | null = null;
   private floatingToolbar: HTMLElement;
   private fixedToolbar: HTMLElement;
 
@@ -35,6 +37,11 @@ export class Toolbar {
     document.removeEventListener("selectionchange", this.onSelectionChange);
   }
 
+  /** Set the block editor reference (for re-render after toolbar actions) */
+  setBlockEditor(editor: BlockEditor): void {
+    this.blockEditor = editor;
+  }
+
   private bindEvents(): void {
     // Floating toolbar buttons
     this.floatingToolbar.addEventListener("mousedown", (e) => {
@@ -47,15 +54,37 @@ export class Toolbar {
       this.applyFormat(format);
     });
 
-    // Fixed toolbar buttons
+    // Fixed toolbar buttons — block actions
     if (this.fixedToolbar) {
       this.fixedToolbar.addEventListener("click", (e) => {
-        const btn = (e.target as HTMLElement).closest(
+        const actionBtn = (e.target as HTMLElement).closest(
           "[data-action]",
         ) as HTMLElement;
-        if (!btn) return;
-        const action = btn.dataset.action!;
-        this.handleBlockAction(action);
+        if (actionBtn) {
+          e.preventDefault();
+          this.handleBlockAction(actionBtn.dataset.action!);
+          return;
+        }
+
+        // Format buttons in toolbar
+        const fmtBtn = (e.target as HTMLElement).closest(
+          "[data-format]",
+        ) as HTMLElement;
+        if (fmtBtn) {
+          e.preventDefault();
+          this.applyFormat(fmtBtn.dataset.format!);
+          return;
+        }
+
+        // Keyword type-change buttons
+        const kwBtn = (e.target as HTMLElement).closest(
+          "[data-type]",
+        ) as HTMLElement;
+        if (kwBtn) {
+          e.preventDefault();
+          this.handleTypeChange(kwBtn.dataset.type!);
+          return;
+        }
       });
     }
 
@@ -103,6 +132,7 @@ export class Toolbar {
       italic: ["_", "_"],
       strike: ["~", "~"],
       highlight: ["^", "^"],
+      code: ["`", "`"],
     };
 
     if (format === "link") {
@@ -118,9 +148,20 @@ export class Toolbar {
       range.insertNode(document.createTextNode(clean));
     } else if (markers[format]) {
       const [open, close] = markers[format];
-      const wrapped = `${open}${text}${close}`;
-      range.deleteContents();
-      range.insertNode(document.createTextNode(wrapped));
+      // Toggle: if already wrapped, unwrap; otherwise wrap
+      if (
+        text.startsWith(open) &&
+        text.endsWith(close) &&
+        text.length > open.length + close.length
+      ) {
+        const unwrapped = text.slice(open.length, -close.length);
+        range.deleteContents();
+        range.insertNode(document.createTextNode(unwrapped));
+      } else {
+        const wrapped = `${open}${text}${close}`;
+        range.deleteContents();
+        range.insertNode(document.createTextNode(wrapped));
+      }
     }
 
     this.floatingToolbar.classList.add("hidden");
@@ -135,9 +176,23 @@ export class Toolbar {
         ".it-block__content",
       ) as HTMLElement;
       if (contentEl) {
-        this.sync.updateBlockContent(blockId, contentEl.textContent ?? "");
+        this.sync.updateBlockContent(
+          blockId,
+          contentEl.innerText?.replace(/\n$/, "") ?? "",
+        );
       }
     }
+  }
+
+  private handleTypeChange(type: string): void {
+    const activeBlock = document.querySelector(
+      ".it-block--active",
+    ) as HTMLElement;
+    if (!activeBlock) return;
+    const blockId = activeBlock.dataset.blockId!;
+    this.sync.changeBlockType(blockId, type);
+    this.blockEditor?.render();
+    this.blockEditor?.focusBlockEnd(blockId);
   }
 
   private handleBlockAction(action: string): void {
@@ -150,9 +205,12 @@ export class Toolbar {
     const blockId = activeBlock.dataset.blockId!;
 
     switch (action) {
-      case "add-block":
-        this.sync.insertBlockAfter(blockId, "note", "");
-        break;
+      case "add-block": {
+        const newId = this.sync.insertBlockAfter(blockId, "note", "");
+        this.blockEditor?.render();
+        this.blockEditor?.focusBlockStart(newId);
+        return;
+      }
       case "move-up":
         this.sync.moveBlock(blockId, "up");
         break;
@@ -163,5 +221,7 @@ export class Toolbar {
         this.sync.deleteBlock(blockId);
         break;
     }
+    this.blockEditor?.render();
+    this.blockEditor?.focusBlockEnd(blockId);
   }
 }

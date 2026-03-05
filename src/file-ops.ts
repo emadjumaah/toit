@@ -4,6 +4,7 @@
 import { renderHTML, renderPrint } from "@intenttext/core";
 import { SyncEngine } from "./sync-engine";
 import type { TabManager } from "./tab-manager";
+import type { BlockEditor } from "./block-editor";
 
 const AUTOSAVE_KEY = "intenttext-editor-autosave";
 const AUTOSAVE_INTERVAL = 30_000; // 30 seconds
@@ -15,6 +16,7 @@ note: `;
 export class FileOps {
   private sync: SyncEngine;
   private tabManager: TabManager;
+  private blockEditor: BlockEditor | null = null;
 
   constructor(sync: SyncEngine, tabManager: TabManager) {
     this.sync = sync;
@@ -22,6 +24,11 @@ export class FileOps {
     this.bindEvents();
     this.startAutosave();
     this.checkRestore();
+  }
+
+  /** Set the block editor reference (for unsaved indicator) */
+  setBlockEditor(editor: BlockEditor): void {
+    this.blockEditor = editor;
   }
 
   private bindEvents(): void {
@@ -182,6 +189,7 @@ export class FileOps {
         await writable.write(source);
         await writable.close();
         this.showStatus("File saved");
+        this.blockEditor?.markSaved();
         return;
       } catch {
         return;
@@ -190,6 +198,7 @@ export class FileOps {
 
     this.downloadFile(source, filename, "text/plain");
     this.showStatus("Downloaded");
+    this.blockEditor?.markSaved();
   }
 
   // ── Export ────────────────────────────────────────────────
@@ -265,6 +274,7 @@ export class FileOps {
           timestamp: Date.now(),
         }),
       );
+      this.showStatus("Auto-saved");
     } catch {
       // localStorage full or unavailable
     }
