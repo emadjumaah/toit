@@ -10,6 +10,8 @@
 
 ## MISSION
 
+#
+
 Transform the existing `toit` web app (currently a two-panel conversion tool) into
 **IntentText Editor** — a professional WYSIWYG document editor where the `.it` format
 is the underlying data layer, invisible to the writer during normal use.
