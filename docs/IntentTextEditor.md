@@ -2,9 +2,9 @@
 
 # Agent Implementation Prompt — Transform toit into a WYSIWYG Editor
 
-# Project: github.com/emadjumaah/toit
+# Project: github.com/intenttext/intenttext-editor
 
-# Parser: github.com/emadjumaah/IntentText (@intenttext/core)
+# Parser: github.com/intenttext/IntentText (@intenttext/core)
 
 ---
 

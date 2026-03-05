@@ -2,7 +2,7 @@
 
 > Two simple tools: Convert web content to IntentText (.it) or convert IntentText back to HTML/Markdown.
 
-**Live:** [https://toit-psi.vercel.app/](https://toit-psi.vercel.app/) &nbsp;|&nbsp; **Repo:** [github.com/emadjumaah/web-to-it](https://github.com/emadjumaah/web-to-it)
+**Live:** [https://toit-psi.vercel.app/](https://toit-psi.vercel.app/) &nbsp;|&nbsp; **Repo:** [github.com/intenttext/intenttext-editor](https://github.com/intenttext/intenttext-editor)
 
 ---
 
@@ -58,7 +58,7 @@ npm run preview   # preview the production build locally
 
 | Library                                                      | Purpose                                                |
 | ------------------------------------------------------------ | ------------------------------------------------------ |
-| [@intenttext/core](https://github.com/emadjumaah/IntentText) | IntentText parsing, rendering, and Markdown conversion |
+| [@intenttext/core](https://github.com/intenttext/IntentText) | IntentText parsing, rendering, and Markdown conversion |
 | [Monaco Editor](https://microsoft.github.io/monaco-editor/)  | Syntax-highlighted IntentText editor                   |
 | [Vite](https://vitejs.dev) + TypeScript                      | Build tooling and type safety                          |
 
