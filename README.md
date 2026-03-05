@@ -2,7 +2,7 @@
 
 > Two simple tools: Convert web content to IntentText (.it) or convert IntentText back to HTML/Markdown.
 
-**Live:** [https://toit-psi.vercel.app/](https://toit-psi.vercel.app/) &nbsp;|&nbsp; **Repo:** [github.com/intenttext/intenttext-editor](https://github.com/intenttext/intenttext-editor)
+**Live:** [https://iteditor.vercel.app/](https://iteditor.vercel.app/) &nbsp;|&nbsp; **Repo:** [github.com/intenttext/intenttext-editor](https://github.com/intenttext/intenttext-editor)
 
 ---
 
