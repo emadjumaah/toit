@@ -617,30 +617,34 @@ export class IntentTextApp {
         }
       });
 
-    document.getElementById("editor-toolbar")?.addEventListener("click", (e) => {
-      const target = e.target as HTMLElement;
-      const formatBtn = target.closest(".fmt-btn") as HTMLElement | null;
-      const alignBtn = target.closest(".align-btn") as HTMLElement | null;
+    document
+      .getElementById("editor-toolbar")
+      ?.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement;
+        const formatBtn = target.closest(".fmt-btn") as HTMLElement | null;
+        const alignBtn = target.closest(".align-btn") as HTMLElement | null;
 
-      if (formatBtn?.dataset.format) {
-        this.applyInlineFormat(formatBtn.dataset.format);
-        return;
-      }
+        if (formatBtn?.dataset.format) {
+          this.applyInlineFormat(formatBtn.dataset.format);
+          return;
+        }
 
-      if (formatBtn?.dataset.page) {
-        this.applyPageRule(formatBtn.dataset.page as "break" | "keep" | "clear");
-        return;
-      }
+        if (formatBtn?.dataset.page) {
+          this.applyPageRule(
+            formatBtn.dataset.page as "break" | "keep" | "clear",
+          );
+          return;
+        }
 
-      if (formatBtn?.id === "focus-mode-btn") {
-        this.toggleFocusMode();
-        return;
-      }
+        if (formatBtn?.id === "focus-mode-btn") {
+          this.toggleFocusMode();
+          return;
+        }
 
-      if (alignBtn?.dataset.align) {
-        this.applyLineAlignment(alignBtn.dataset.align);
-      }
-    });
+        if (alignBtn?.dataset.align) {
+          this.applyLineAlignment(alignBtn.dataset.align);
+        }
+      });
 
     document.getElementById("font-select")?.addEventListener("change", (e) => {
       const val = (e.target as HTMLSelectElement).value;
@@ -653,7 +657,9 @@ export class IntentTextApp {
       ?.addEventListener("change", (e) => {
         const val = (e.target as HTMLSelectElement).value;
         this.previewLayout = val === "a4" ? "a4" : "fluid";
-        document.getElementById("preview-rendered")?.classList.toggle("a4-mode", this.previewLayout === "a4");
+        document
+          .getElementById("preview-rendered")
+          ?.classList.toggle("a4-mode", this.previewLayout === "a4");
         this.updatePreview();
       });
 
@@ -913,7 +919,10 @@ export class IntentTextApp {
         selected.endsWith(conf.close) &&
         selected.length >= conf.open.length + conf.close.length
       ) {
-        payload = selected.slice(conf.open.length, selected.length - conf.close.length);
+        payload = selected.slice(
+          conf.open.length,
+          selected.length - conf.close.length,
+        );
         conf.open = "";
         conf.close = "";
       }
@@ -934,7 +943,11 @@ export class IntentTextApp {
     if (!selection || !model) return;
 
     const edits: monaco.editor.IIdentifiedSingleEditOperation[] = [];
-    for (let lineNumber = selection.startLineNumber; lineNumber <= selection.endLineNumber; lineNumber++) {
+    for (
+      let lineNumber = selection.startLineNumber;
+      lineNumber <= selection.endLineNumber;
+      lineNumber++
+    ) {
       const line = model.getLineContent(lineNumber);
       if (!line.trim()) continue;
 
@@ -966,12 +979,20 @@ export class IntentTextApp {
     if (!selection || !model) return;
 
     const edits: monaco.editor.IIdentifiedSingleEditOperation[] = [];
-    for (let lineNumber = selection.startLineNumber; lineNumber <= selection.endLineNumber; lineNumber++) {
+    for (
+      let lineNumber = selection.startLineNumber;
+      lineNumber <= selection.endLineNumber;
+      lineNumber++
+    ) {
       const line = model.getLineContent(lineNumber);
       if (!line.trim()) continue;
-      const stripped = line.replace(/\s*\|\s*page:\s*(break|keep)\b/gi, "").trimEnd();
+      const stripped = line
+        .replace(/\s*\|\s*page:\s*(break|keep)\b/gi, "")
+        .trimEnd();
       const text =
-        mode === "clear" ? stripped : `${stripped}${stripped ? " " : ""}| page: ${mode}`;
+        mode === "clear"
+          ? stripped
+          : `${stripped}${stripped ? " " : ""}| page: ${mode}`;
 
       edits.push({
         range: new monaco.Range(lineNumber, 1, lineNumber, line.length + 1),
@@ -987,12 +1008,14 @@ export class IntentTextApp {
   }
 
   private applyToolbarHints(): void {
-    document.querySelectorAll<HTMLElement>("#keyword-toolbar .kw-btn").forEach((el) => {
-      const snippet = el.dataset.kw?.replace(/\n/g, " ").trim();
-      if (snippet) {
-        el.title = `Insert: ${snippet}`;
-      }
-    });
+    document
+      .querySelectorAll<HTMLElement>("#keyword-toolbar .kw-btn")
+      .forEach((el) => {
+        const snippet = el.dataset.kw?.replace(/\n/g, " ").trim();
+        if (snippet) {
+          el.title = `Insert: ${snippet}`;
+        }
+      });
 
     document.querySelectorAll<HTMLElement>("button, select").forEach((el) => {
       if (el.title?.trim()) return;
@@ -1067,7 +1090,9 @@ export class IntentTextApp {
 
   private applyA4Pagination(doc: IntentDocument): void {
     const rendered = document.getElementById("preview-rendered");
-    const root = rendered?.querySelector(".intent-document") as HTMLElement | null;
+    const root = rendered?.querySelector(
+      ".intent-document",
+    ) as HTMLElement | null;
     if (!root) return;
 
     const elements = Array.from(root.children) as HTMLElement[];
@@ -1101,7 +1126,11 @@ export class IntentTextApp {
       page.appendChild(element);
       const height = element.getBoundingClientRect().height;
 
-      if (used + height > maxPageHeight && page.childElementCount > 1 && pageRule !== "keep") {
+      if (
+        used + height > maxPageHeight &&
+        page.childElementCount > 1 &&
+        pageRule !== "keep"
+      ) {
         page.removeChild(element);
         page = document.createElement("section");
         page.className = "a4-page";

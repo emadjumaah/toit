@@ -129,44 +129,181 @@
         <!-- Editor panel -->
         <div class="editor-panel" id="editor-panel">
           <div class="editor-toolbar" id="editor-toolbar">
-            <button class="fmt-btn" data-format="bold" title="Toggle bold">B</button>
-            <button class="fmt-btn" data-format="italic" title="Toggle italic">I</button>
-            <button class="fmt-btn" data-format="strike" title="Toggle strikethrough">S</button>
-            <button class="fmt-btn" data-format="highlight" title="Toggle highlight">H</button>
-            <button class="fmt-btn" data-format="code" title="Toggle inline code">`</button>
-            <button class="fmt-btn" data-format="quote" title="Toggle inline quote">==</button>
-            <button class="fmt-btn" data-format="note" title="Toggle inline note">[[ ]]</button>
-            <button class="fmt-btn" data-format="link" title="Toggle quick link">[[|]]</button>
-            <button class="fmt-btn" data-format="date" title="Toggle date token">@</button>
+            <button class="fmt-btn" data-format="bold" title="Toggle bold">
+              B
+            </button>
+            <button class="fmt-btn" data-format="italic" title="Toggle italic">
+              I
+            </button>
+            <button
+              class="fmt-btn"
+              data-format="strike"
+              title="Toggle strikethrough"
+            >
+              S
+            </button>
+            <button
+              class="fmt-btn"
+              data-format="highlight"
+              title="Toggle highlight"
+            >
+              H
+            </button>
+            <button
+              class="fmt-btn"
+              data-format="code"
+              title="Toggle inline code"
+            >
+              `
+            </button>
+            <button
+              class="fmt-btn"
+              data-format="quote"
+              title="Toggle inline quote"
+            >
+              ==
+            </button>
+            <button
+              class="fmt-btn"
+              data-format="note"
+              title="Toggle inline note"
+            >
+              [[ ]]
+            </button>
+            <button
+              class="fmt-btn"
+              data-format="link"
+              title="Toggle quick link"
+            >
+              [[|]]
+            </button>
+            <button
+              class="fmt-btn"
+              data-format="date"
+              title="Toggle date token"
+            >
+              @
+            </button>
             <span class="toolbar-sep"></span>
-            <button class="align-btn" data-align="left" title="Align left" aria-label="Align left">
-              <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M3 5h16v2H3V5zm0 4h12v2H3V9zm0 4h16v2H3v-2zm0 4h12v2H3v-2z" fill="currentColor"/></svg>
+            <button
+              class="align-btn"
+              data-align="left"
+              title="Align left"
+              aria-label="Align left"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+                aria-hidden="true"
+              >
+                <path
+                  d="M3 5h16v2H3V5zm0 4h12v2H3V9zm0 4h16v2H3v-2zm0 4h12v2H3v-2z"
+                  fill="currentColor"
+                />
+              </svg>
             </button>
-            <button class="align-btn" data-align="center" title="Align center" aria-label="Align center">
-              <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M4 5h16v2H4V5zm3 4h10v2H7V9zm-3 4h16v2H4v-2zm3 4h10v2H7v-2z" fill="currentColor"/></svg>
+            <button
+              class="align-btn"
+              data-align="center"
+              title="Align center"
+              aria-label="Align center"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+                aria-hidden="true"
+              >
+                <path
+                  d="M4 5h16v2H4V5zm3 4h10v2H7V9zm-3 4h16v2H4v-2zm3 4h10v2H7v-2z"
+                  fill="currentColor"
+                />
+              </svg>
             </button>
-            <button class="align-btn" data-align="right" title="Align right" aria-label="Align right">
-              <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M5 5h16v2H5V5zm9 4h7v2h-7V9zm-9 4h16v2H5v-2zm9 4h7v2h-7v-2z" fill="currentColor"/></svg>
+            <button
+              class="align-btn"
+              data-align="right"
+              title="Align right"
+              aria-label="Align right"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+                aria-hidden="true"
+              >
+                <path
+                  d="M5 5h16v2H5V5zm9 4h7v2h-7V9zm-9 4h16v2H5v-2zm9 4h7v2h-7v-2z"
+                  fill="currentColor"
+                />
+              </svg>
             </button>
-            <button class="align-btn" data-align="justify" title="Align justify" aria-label="Align justify">
-              <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M3 5h18v2H3V5zm0 4h18v2H3V9zm0 4h18v2H3v-2zm0 4h18v2H3v-2z" fill="currentColor"/></svg>
+            <button
+              class="align-btn"
+              data-align="justify"
+              title="Align justify"
+              aria-label="Align justify"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+                aria-hidden="true"
+              >
+                <path
+                  d="M3 5h18v2H3V5zm0 4h18v2H3V9zm0 4h18v2H3v-2zm0 4h18v2H3v-2z"
+                  fill="currentColor"
+                />
+              </svg>
             </button>
             <span class="toolbar-sep"></span>
-            <button class="fmt-btn" data-page="break" title="Insert page break on selected lines">Pg+</button>
-            <button class="fmt-btn" data-page="keep" title="Keep selected lines on one page">Pg=</button>
-            <button class="fmt-btn" data-page="clear" title="Clear page rule">Pg-</button>
+            <button
+              class="fmt-btn"
+              data-page="break"
+              title="Insert page break on selected lines"
+            >
+              Pg+
+            </button>
+            <button
+              class="fmt-btn"
+              data-page="keep"
+              title="Keep selected lines on one page"
+            >
+              Pg=
+            </button>
+            <button class="fmt-btn" data-page="clear" title="Clear page rule">
+              Pg-
+            </button>
             <span class="toolbar-sep"></span>
             <select id="font-select" class="toolbar-select" title="Editor font">
-              <option value='"JetBrains Mono", "SF Mono", "Fira Code", monospace'>Mono</option>
+              <option
+                value='"JetBrains Mono", "SF Mono", "Fira Code", monospace'
+              >
+                Mono
+              </option>
               <option value='"Inter", "Segoe UI", sans-serif'>Inter</option>
-              <option value='"Merriweather", "Times New Roman", serif'>Book</option>
+              <option value='"Merriweather", "Times New Roman", serif'>
+                Book
+              </option>
               <option value='"Source Serif 4", Georgia, serif'>Journal</option>
             </select>
-            <select id="page-layout-select" class="toolbar-select" title="Preview layout">
+            <select
+              id="page-layout-select"
+              class="toolbar-select"
+              title="Preview layout"
+            >
               <option value="fluid">Fluid</option>
               <option value="a4">A4</option>
             </select>
-            <button id="focus-mode-btn" class="fmt-btn" type="button" title="Toggle focus mode">Focus</button>
+            <button
+              id="focus-mode-btn"
+              class="fmt-btn"
+              type="button"
+              title="Toggle focus mode"
+            >
+              Focus
+            </button>
           </div>
           <div id="monaco-editor" class="monaco-container"></div>
           <div class="status-bar" id="status-bar">
