@@ -416,6 +416,13 @@ export const SLASH_MENU_ITEMS: SlashMenuItem[] = [
     icon: "📝",
     category: "Agentic",
   },
+  {
+    type: "policy",
+    label: "policy",
+    description: "Behavioural rule",
+    icon: "📋",
+    category: "Agentic",
+  },
   // Structure
   {
     type: "divider",

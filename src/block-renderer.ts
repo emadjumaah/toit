@@ -79,6 +79,7 @@ const TYPE_ICONS: Record<string, string> = {
   handoff: "→",
   call: "ƒ",
   trigger: "⚡",
+  policy: "📋",
 };
 
 /** Check if block type is a document-level setting */

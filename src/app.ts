@@ -34,7 +34,7 @@ function registerIntentTextLanguage(): void {
         ],
         // Inter-agent keywords (v2.1+)
         [
-          /^(handoff|wait|parallel|retry|result|gate|call|emit):/,
+          /^(handoff|wait|parallel|retry|result|gate|call|emit|policy):/,
           "keyword.interagent",
         ],
         // Content keywords
