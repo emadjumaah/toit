@@ -65,7 +65,7 @@ export function StatusBar({
         )}
       </div>
       <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-        <span>v2.11.0</span>
+        <span>v2.12.1</span>
         <span>Theme: {theme}</span>
         <span>
           {isUnsaved ? (

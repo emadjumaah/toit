@@ -45,14 +45,8 @@ export type ModalType =
 
 export default function App() {
   const workspace = useWorkspace();
-  const {
-    content,
-    setContent,
-    filename,
-    setFilename,
-    isUnsaved,
-    markSaved,
-  } = workspace;
+  const { content, setContent, filename, setFilename, isUnsaved, markSaved } =
+    workspace;
 
   const docState = useDocument(content);
   const { openFile, saveFile, newFile } = useFile(workspace);
@@ -60,26 +54,37 @@ export default function App() {
 
   const [layout, setLayout] = useState<LayoutMode>("split");
   const [theme, setTheme] = useState(
-    () => localStorage.getItem("it-editor-theme") || "corporate"
+    () => localStorage.getItem("it-editor-theme") || "corporate",
   );
   const [editorTheme, setEditorTheme] = useState<EditorThemeMode>(
-    () => (localStorage.getItem("it-editor-color") as EditorThemeMode) || "dark"
+    () =>
+      (localStorage.getItem("it-editor-color") as EditorThemeMode) || "light",
   );
   const [modal, setModal] = useState<ModalType>(null);
   const [dividerPos, setDividerPos] = useState(50);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const panelsRef = useRef<HTMLDivElement>(null);
 
-  // Persist theme choices
+  // Persist theme choices and toggle app-level light/dark class
   useEffect(() => {
     localStorage.setItem("it-editor-theme", theme);
   }, [theme]);
   useEffect(() => {
     localStorage.setItem("it-editor-color", editorTheme);
+    document.documentElement.setAttribute("data-theme", editorTheme);
   }, [editorTheme]);
 
-  // Set initial content (welcome or restored)
+  // Load from URL ?source= parameter (hub "Open in Editor")
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const source = params.get("source");
+    if (source) {
+      setContent(source);
+      markSaved();
+      // Clean the URL so a refresh doesn't reload from param
+      window.history.replaceState({}, "", window.location.pathname);
+      return;
+    }
     if (!content && !hasRestore) {
       setContent(WELCOME);
     }
@@ -109,7 +114,7 @@ export default function App() {
         e.preventDefault();
         // PDF export: call window.print on preview iframe
         const iframe = document.querySelector<HTMLIFrameElement>(
-          ".panel-preview iframe"
+          ".panel-preview iframe",
         );
         if (iframe?.contentWindow) iframe.contentWindow.print();
       } else if (mod && e.shiftKey && e.key === "V") {
@@ -134,6 +139,8 @@ export default function App() {
       const rect = panels.getBoundingClientRect();
       const divEl = e.currentTarget as HTMLElement;
       divEl.classList.add("dragging");
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
 
       const onMove = (me: MouseEvent) => {
         const dx = me.clientX - startX;
@@ -142,13 +149,15 @@ export default function App() {
       };
       const onUp = () => {
         divEl.classList.remove("dragging");
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
         window.removeEventListener("mousemove", onMove);
         window.removeEventListener("mouseup", onUp);
       };
       window.addEventListener("mousemove", onMove);
       window.addEventListener("mouseup", onUp);
     },
-    [dividerPos]
+    [dividerPos],
   );
 
   // Drag and drop files
@@ -250,11 +259,7 @@ export default function App() {
                 : undefined
             }
           >
-            <Preview
-              content={content}
-              theme={theme}
-              errors={docState.errors}
-            />
+            <Preview content={content} theme={theme} errors={docState.errors} />
           </div>
         )}
       </div>

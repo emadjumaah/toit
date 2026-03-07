@@ -1,4 +1,23 @@
-:root {
+:root,
+[data-theme="light"] {
+  --bg-app: #f8fafc;
+  --bg-toolbar: #ffffff;
+  --bg-panel: #ffffff;
+  --bg-modal: #ffffff;
+  --border: #e2e8f0;
+  --text-primary: #1e293b;
+  --text-muted: #64748b;
+  --accent: #2563eb;
+  --purple: #7c3aed;
+  --success: #16a34a;
+  --warning: #ca8a04;
+  --error: #dc2626;
+
+  --toolbar-h: 48px;
+  --status-h: 28px;
+}
+
+[data-theme="dark"] {
   --bg-app: #0d1117;
   --bg-toolbar: #161b22;
   --bg-panel: #0f1117;
@@ -11,9 +30,6 @@
   --success: #3fb950;
   --warning: #d29922;
   --error: #f85149;
-
-  --toolbar-h: 48px;
-  --status-h: 28px;
 }
 
 * {
@@ -64,12 +80,18 @@ button {
   white-space: nowrap;
 }
 .tbtn:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.05);
   color: var(--text-primary);
 }
+[data-theme="dark"] .tbtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
 .tbtn.active {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.08);
   color: var(--text-primary);
+}
+[data-theme="dark"] .tbtn.active {
+  background: rgba(255, 255, 255, 0.1);
 }
 .tbtn svg {
   width: 16px;
@@ -90,6 +112,9 @@ button {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+[data-theme="dark"] .dropdown-menu {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 .dropdown-item {
@@ -107,8 +132,11 @@ button {
     color 0.1s;
 }
 .dropdown-item:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.05);
   color: var(--text-primary);
+}
+[data-theme="dark"] .dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 .dropdown-item.active {
   color: var(--purple);
@@ -124,10 +152,13 @@ button {
   position: fixed;
   inset: 0;
   z-index: 200;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
+}
+[data-theme="dark"] .modal-backdrop {
+  background: rgba(0, 0, 0, 0.6);
 }
 .modal {
   background: var(--bg-modal);
@@ -137,6 +168,9 @@ button {
   min-width: 400px;
   max-width: 560px;
   width: 100%;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+}
+[data-theme="dark"] .modal {
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
 }
 .modal h2 {
@@ -178,7 +212,7 @@ button {
 .btn-primary {
   padding: 8px 16px;
   background: var(--purple);
-  color: #0d1117;
+  color: #ffffff;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
@@ -188,10 +222,13 @@ button {
 }
 .btn-secondary {
   padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.04);
   color: var(--text-muted);
   border-radius: 6px;
   font-size: 13px;
+}
+[data-theme="dark"] .btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
 }
 .btn-secondary:hover {
   color: var(--text-primary);
@@ -244,11 +281,20 @@ button {
   overflow: hidden;
 }
 .panel-divider {
-  width: 4px;
+  width: 6px;
   background: var(--border);
   cursor: col-resize;
   flex-shrink: 0;
   transition: background 0.15s;
+  position: relative;
+}
+.panel-divider::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -4px;
+  right: -4px;
 }
 .panel-divider:hover,
 .panel-divider.dragging {
@@ -287,8 +333,11 @@ button {
 }
 .filename-input:focus {
   outline: none;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.04);
   color: var(--text-primary);
+}
+[data-theme="dark"] .filename-input:focus {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 /* Error banner in preview */
@@ -306,10 +355,13 @@ button {
   position: fixed;
   inset: 0;
   z-index: 250;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
+}
+[data-theme="dark"] .help-overlay {
+  background: rgba(0, 0, 0, 0.7);
 }
 .help-card {
   background: var(--bg-modal);
@@ -337,7 +389,7 @@ button {
   width: 200px;
 }
 .help-card kbd {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.06);
   border: 1px solid var(--border);
   border-radius: 4px;
   padding: 1px 6px;
