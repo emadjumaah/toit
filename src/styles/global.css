@@ -1159,6 +1159,24 @@ button {
   line-height: 1.6;
 }
 
+/* ─ Link block URL indicator ───────────────────────────────────── */
+.docs-page .tiptap .it-doc-link-url {
+  font-size: 11px;
+  color: #9aa0a6;
+  font-family: "JetBrains Mono", monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+  flex-shrink: 1;
+  user-select: none;
+  margin-left: auto;
+  padding-left: 8px;
+}
+.docs-page .tiptap .it-doc-link-url::before {
+  content: "→ ";
+}
+
 /* ─── Comment ─────────────────────────────────────────────── */
 
 .docs-page .tiptap .it-doc-comment {

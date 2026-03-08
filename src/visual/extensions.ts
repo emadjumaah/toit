@@ -308,6 +308,23 @@ export const ITGenericBlock = Node.create({
   renderHTML({ HTMLAttributes, node }) {
     const kw = node.attrs.keyword;
     const props = safeParse(node.attrs.props);
+    const url = props.url || props.href || "";
+    const children: unknown[] = [
+      [
+        "span",
+        { class: "it-doc-generic-label", contenteditable: "false" },
+        `${kw}:`,
+      ],
+      ["span", { class: "it-doc-generic-content" }, 0],
+    ];
+    // For link blocks, append a URL hint
+    if (kw === "link" && url) {
+      children.push([
+        "span",
+        { class: "it-doc-link-url", contenteditable: "false" },
+        url,
+      ]);
+    }
     return [
       "div",
       mergeAttributes(HTMLAttributes, {
@@ -316,12 +333,7 @@ export const ITGenericBlock = Node.create({
         class: `it-doc-generic it-doc-kw-${kw}`,
         style: buildStyle(kw, props),
       }),
-      [
-        "span",
-        { class: "it-doc-generic-label", contenteditable: "false" },
-        `${kw}:`,
-      ],
-      ["span", { class: "it-doc-generic-content" }, 0],
+      ...children,
     ];
   },
 });
