@@ -290,8 +290,8 @@ function blockToNode(block: {
     };
   }
 
-  // Text → paragraph
-  if (type === "text") {
+  // Text / body-text → paragraph
+  if (type === "text" || type === "body-text") {
     return {
       type: "paragraph",
       ...(textAlign && { attrs: { textAlign } }),
