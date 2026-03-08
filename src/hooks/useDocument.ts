@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { parseIntentText } from "@intenttext/core";
+import { parseIntentText, CANONICAL_KEYWORDS } from "@intenttext/core";
 import type { IntentDocument } from "@intenttext/core";
 
 interface DocState {
@@ -13,18 +13,7 @@ interface DocState {
   firstErrorLine: number | null;
 }
 
-const KNOWN_KEYWORDS = new Set([
-  "title", "summary", "section", "sub", "divider", "note", "info", "warning",
-  "tip", "success", "headers", "row", "table", "task", "done", "ask", "quote",
-  "image", "link", "ref", "embed", "code", "end", "step", "decision", "trigger",
-  "loop", "checkpoint", "audit", "error", "import", "export", "progress",
-  "context", "result", "handoff", "wait", "parallel", "retry", "gate", "call",
-  "emit", "policy", "track", "approve", "sign", "freeze", "revision", "meta",
-  "font", "page", "break", "byline", "epigraph", "caption", "footnote", "toc",
-  "dedication", "header", "footer", "watermark", "def", "metric", "amendment",
-  "figure", "signline", "contact", "deadline", "input", "output", "extension",
-  "tool", "prompt", "memory",
-]);
+const KNOWN_KEYWORDS = new Set(CANONICAL_KEYWORDS);
 
 export function useDocument(content: string): DocState {
   return useMemo(() => {

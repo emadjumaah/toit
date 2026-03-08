@@ -4,12 +4,15 @@ import { ExportMenu } from "./ExportMenu";
 import { TrustMenu } from "./TrustMenu";
 import { ToolsMenu } from "./ToolsMenu";
 import type { LayoutMode, ModalType } from "../App";
+import type { EditorMode } from "../visual/types";
 
 interface Props {
   filename: string;
   onFilenameChange: (name: string) => void;
   layout: LayoutMode;
   onLayoutChange: (mode: LayoutMode) => void;
+  editorMode: EditorMode;
+  onEditorModeChange: (mode: EditorMode) => void;
   theme: string;
   onThemeChange: (theme: string) => void;
   onNew: () => void;
@@ -25,6 +28,8 @@ export function Toolbar({
   onFilenameChange,
   layout,
   onLayoutChange,
+  editorMode,
+  onEditorModeChange,
   theme,
   onThemeChange,
   onNew,
@@ -90,7 +95,26 @@ export function Toolbar({
 
       <div style={{ flex: 1 }} />
 
-      {/* Center — layout */}
+      {/* Center — mode toggle + layout */}
+      <div className="it-mode-toggle">
+        <button
+          className={`tbtn ${editorMode === "visual" ? "active" : ""}`}
+          onClick={() => onEditorModeChange("visual")}
+          title="Visual mode"
+        >
+          ✏️ Visual
+        </button>
+        <button
+          className={`tbtn ${editorMode === "source" ? "active" : ""}`}
+          onClick={() => onEditorModeChange("source")}
+          title="Source mode"
+        >
+          &lt;/&gt; Source
+        </button>
+      </div>
+
+      <div className="it-toolbar-sep" />
+
       <div style={{ display: "flex", gap: 2 }}>
         <button
           className={`tbtn ${layout === "split" ? "active" : ""}`}

@@ -29,7 +29,7 @@ function toMarkdown(content: string): string {
         case "sub":
           lines.push(`\n### ${c}`);
           break;
-        case "note":
+        case "text":
           lines.push(`\n${c}`);
           break;
         case "task":

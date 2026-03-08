@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { Toolbar } from "./toolbar/Toolbar";
 import { StatusBar } from "./status/StatusBar";
 import { MonacoEditor } from "./editor/MonacoEditor";
+import { VisualEditor } from "./visual/VisualEditor";
 import { Preview } from "./preview/Preview";
 import { SealModal } from "./modals/SealModal";
 import { VerifyModal } from "./modals/VerifyModal";
@@ -13,6 +14,7 @@ import { useWorkspace } from "./hooks/useWorkspace";
 import { useFile } from "./hooks/useFile";
 import { useAutoSave } from "./hooks/useAutoSave";
 import { useDocument } from "./hooks/useDocument";
+import type { EditorMode } from "./visual/types";
 import type * as monaco from "monaco-editor";
 
 const WELCOME = `// Welcome to IntentText Editor
@@ -22,8 +24,8 @@ title: My First Document
 summary: A document written in IntentText
 
 section: Getting Started
-note: Every line in IntentText starts with a keyword.
-note: The preview on the right updates as you type.
+text: Every line in IntentText starts with a keyword.
+text: The preview on the right updates as you type.
 tip: Try changing the theme using the Theme picker above.
 
 section: Learn More
@@ -62,6 +64,9 @@ export default function App() {
   );
   const [modal, setModal] = useState<ModalType>(null);
   const [dividerPos, setDividerPos] = useState(50);
+  const [editorMode, setEditorMode] = useState<EditorMode>(
+    () => (localStorage.getItem("it-editor-mode") as EditorMode) || "visual",
+  );
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const panelsRef = useRef<HTMLDivElement>(null);
 
@@ -73,6 +78,9 @@ export default function App() {
     localStorage.setItem("it-editor-color", editorTheme);
     document.documentElement.setAttribute("data-theme", editorTheme);
   }, [editorTheme]);
+  useEffect(() => {
+    localStorage.setItem("it-editor-mode", editorMode);
+  }, [editorMode]);
 
   // Load from URL ?source= parameter (hub "Open in Editor")
   useEffect(() => {
@@ -215,6 +223,8 @@ export default function App() {
         onFilenameChange={setFilename}
         layout={layout}
         onLayoutChange={setLayout}
+        editorMode={editorMode}
+        onEditorModeChange={setEditorMode}
         theme={theme}
         onThemeChange={setTheme}
         onNew={() => newFile(WELCOME)}
@@ -237,12 +247,16 @@ export default function App() {
               layout === "split" ? { flex: `0 0 ${dividerPos}%` } : undefined
             }
           >
-            <MonacoEditor
-              value={content}
-              onChange={setContent}
-              editorRef={editorRef}
-              editorTheme={editorTheme}
-            />
+            {editorMode === "source" ? (
+              <MonacoEditor
+                value={content}
+                onChange={setContent}
+                editorRef={editorRef}
+                editorTheme={editorTheme}
+              />
+            ) : (
+              <VisualEditor value={content} onChange={setContent} />
+            )}
           </div>
         )}
 

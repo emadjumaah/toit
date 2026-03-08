@@ -560,7 +560,7 @@ already defined in the IntentText VS Code extension grammar.
 
 Tokenizer rules for Monaco (register with `monaco.languages.setMonarchTokensProvider`):
 
-```javascript
+````javascript
 {
   tokenizer: {
     root: [
@@ -579,8 +579,10 @@ Tokenizer rules for Monaco (register with `monaco.languages.setMonarchTokensProv
       [/\*[^*]+\*/, "markup.bold"],
       // Inline italic
       [/_[^_]+_/, "markup.italic"],
-      // Inline code
-      [/`[^`]+`/, "markup.inline.code"],
+      // Inline label (single backtick)
+      [/`[^`]+`/, "markup.inline.label"],
+      // Inline code (triple backtick)
+      [/```[^`]+```/, "markup.inline.code"],
       // Comments
       [/\/\/.*$/, "comment"],
       // Section divider
@@ -588,7 +590,7 @@ Tokenizer rules for Monaco (register with `monaco.languages.setMonarchTokensProv
     ];
   }
 }
-```
+````
 
 When user switches away from Source tab, sync content back to the block editor.
 
