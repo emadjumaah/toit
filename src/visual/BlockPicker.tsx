@@ -10,7 +10,11 @@ interface Props {
 
 // Keywords hidden from the block picker (structural/system-managed)
 const HIDDEN_KEYWORDS = new Set([
-  "history", "track", "revision", "freeze", "row",
+  "history",
+  "track",
+  "revision",
+  "freeze",
+  "row",
 ]);
 
 export function BlockPicker({ onSelect, onClose, position }: Props) {
@@ -30,7 +34,11 @@ export function BlockPicker({ onSelect, onClose, position }: Props) {
 
     for (const entry of LANGUAGE_REGISTRY) {
       if (HIDDEN_KEYWORDS.has(entry.canonical)) continue;
-      if (q && !entry.canonical.includes(q) && !entry.description.toLowerCase().includes(q)) {
+      if (
+        q &&
+        !entry.canonical.includes(q) &&
+        !entry.description.toLowerCase().includes(q)
+      ) {
         continue;
       }
       const cat = entry.category;
@@ -72,18 +80,32 @@ export function BlockPicker({ onSelect, onClose, position }: Props) {
     el?.scrollIntoView({ block: "nearest" });
   }, [focusIdx]);
 
-  const categoryOrder = ["content", "structure", "data", "identity", "agent", "trust", "layout"];
+  const categoryOrder = [
+    "content",
+    "structure",
+    "data",
+    "identity",
+    "agent",
+    "trust",
+    "layout",
+  ];
 
   let globalIdx = 0;
 
   return (
     <div
       className="it-block-picker-backdrop"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div
         className="it-block-picker"
-        style={position ? { position: "absolute", top: position.top, left: position.left } : undefined}
+        style={
+          position
+            ? { position: "absolute", top: position.top, left: position.left }
+            : undefined
+        }
       >
         <div className="it-picker-header">
           <input
@@ -95,7 +117,9 @@ export function BlockPicker({ onSelect, onClose, position }: Props) {
             placeholder="Search blocks..."
             spellCheck={false}
           />
-          <button className="it-picker-close" onClick={onClose}>Esc</button>
+          <button className="it-picker-close" onClick={onClose}>
+            Esc
+          </button>
         </div>
         <div className="it-picker-list" ref={listRef}>
           {categoryOrder.map((cat) => {
@@ -118,7 +142,9 @@ export function BlockPicker({ onSelect, onClose, position }: Props) {
                       onMouseEnter={() => setFocusIdx(idx)}
                     >
                       <span className="it-picker-kw">{entry.canonical}</span>
-                      <span className="it-picker-desc">{entry.description}</span>
+                      <span className="it-picker-desc">
+                        {entry.description}
+                      </span>
                     </button>
                   );
                 })}

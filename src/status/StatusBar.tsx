@@ -1,5 +1,3 @@
-import type { EditorThemeMode } from "../App";
-
 interface Props {
   blocks: number;
   lines: number;
@@ -8,8 +6,6 @@ interface Props {
   errors: number;
   theme: string;
   isUnsaved: boolean;
-  editorTheme: EditorThemeMode;
-  onToggleEditorTheme: () => void;
   onErrorClick: () => void;
 }
 
@@ -21,8 +17,6 @@ export function StatusBar({
   errors,
   theme,
   isUnsaved,
-  editorTheme,
-  onToggleEditorTheme,
   onErrorClick,
 }: Props) {
   return (
@@ -74,20 +68,6 @@ export function StatusBar({
             <span style={{ color: "var(--success)" }}>✓ Saved</span>
           )}
         </span>
-        <button
-          onClick={onToggleEditorTheme}
-          title="Toggle editor theme"
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            fontSize: 14,
-            padding: 0,
-            lineHeight: 1,
-          }}
-        >
-          {editorTheme === "dark" ? "☀️" : "🌙"}
-        </button>
       </div>
     </div>
   );

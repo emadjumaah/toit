@@ -3,7 +3,6 @@ import { Toolbar } from "./toolbar/Toolbar";
 import { StatusBar } from "./status/StatusBar";
 import { MonacoEditor } from "./editor/MonacoEditor";
 import { VisualEditor } from "./visual/VisualEditor";
-import { Preview } from "./preview/Preview";
 import { SealModal } from "./modals/SealModal";
 import { VerifyModal } from "./modals/VerifyModal";
 import { HistoryModal } from "./modals/HistoryModal";
@@ -17,10 +16,7 @@ import { useDocument } from "./hooks/useDocument";
 import type { EditorMode } from "./visual/types";
 import type * as monaco from "monaco-editor";
 
-const WELCOME = `// Welcome to IntentText Editor
-// Open a .it file or start writing below.
-
-title: My First Document
+const WELCOME = `title: My First Document
 summary: A document written in IntentText
 
 section: Getting Started
@@ -34,8 +30,6 @@ link: Browse Templates | to: https://intenttext-hub.vercel.app
 link: GitHub | to: https://github.com/intenttext/IntentText
 `;
 
-export type LayoutMode = "split" | "editor" | "preview";
-export type EditorThemeMode = "dark" | "light";
 export type ModalType =
   | "seal"
   | "verify"
@@ -54,30 +48,22 @@ export default function App() {
   const { openFile, saveFile, newFile } = useFile(workspace);
   const { hasRestore, restore, dismiss } = useAutoSave(content, setContent);
 
-  const [layout, setLayout] = useState<LayoutMode>("split");
   const [theme, setTheme] = useState(
     () => localStorage.getItem("it-editor-theme") || "corporate",
   );
-  const [editorTheme, setEditorTheme] = useState<EditorThemeMode>(
-    () =>
-      (localStorage.getItem("it-editor-color") as EditorThemeMode) || "light",
-  );
   const [modal, setModal] = useState<ModalType>(null);
-  const [dividerPos, setDividerPos] = useState(50);
   const [editorMode, setEditorMode] = useState<EditorMode>(
     () => (localStorage.getItem("it-editor-mode") as EditorMode) || "visual",
   );
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
-  const panelsRef = useRef<HTMLDivElement>(null);
 
-  // Persist theme choices and toggle app-level light/dark class
+  // Always light mode
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", "light");
+  }, []);
   useEffect(() => {
     localStorage.setItem("it-editor-theme", theme);
   }, [theme]);
-  useEffect(() => {
-    localStorage.setItem("it-editor-color", editorTheme);
-    document.documentElement.setAttribute("data-theme", editorTheme);
-  }, [editorTheme]);
   useEffect(() => {
     localStorage.setItem("it-editor-mode", editorMode);
   }, [editorMode]);
@@ -111,20 +97,6 @@ export default function App() {
       } else if (mod && e.key === "n") {
         e.preventDefault();
         newFile(WELCOME);
-      } else if (mod && e.key === "\\") {
-        e.preventDefault();
-        if (e.shiftKey) {
-          setLayout("preview");
-        } else {
-          setLayout((l) => (l === "split" ? "editor" : "split"));
-        }
-      } else if (mod && e.shiftKey && e.key === "E") {
-        e.preventDefault();
-        // PDF export: call window.print on preview iframe
-        const iframe = document.querySelector<HTMLIFrameElement>(
-          ".panel-preview iframe",
-        );
-        if (iframe?.contentWindow) iframe.contentWindow.print();
       } else if (mod && e.shiftKey && e.key === "V") {
         e.preventDefault();
         setModal("verify");
@@ -135,38 +107,6 @@ export default function App() {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [saveFile, openFile, newFile]);
-
-  // Divider drag
-  const onDividerDown = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      const panels = panelsRef.current;
-      if (!panels) return;
-      const startX = e.clientX;
-      const startPos = dividerPos;
-      const rect = panels.getBoundingClientRect();
-      const divEl = e.currentTarget as HTMLElement;
-      divEl.classList.add("dragging");
-      document.body.style.cursor = "col-resize";
-      document.body.style.userSelect = "none";
-
-      const onMove = (me: MouseEvent) => {
-        const dx = me.clientX - startX;
-        const pct = startPos + (dx / rect.width) * 100;
-        setDividerPos(Math.max(20, Math.min(80, pct)));
-      };
-      const onUp = () => {
-        divEl.classList.remove("dragging");
-        document.body.style.cursor = "";
-        document.body.style.userSelect = "";
-        window.removeEventListener("mousemove", onMove);
-        window.removeEventListener("mouseup", onUp);
-      };
-      window.addEventListener("mousemove", onMove);
-      window.addEventListener("mouseup", onUp);
-    },
-    [dividerPos],
-  );
 
   // Drag and drop files
   useEffect(() => {
@@ -199,9 +139,6 @@ export default function App() {
     };
   }, [setContent, setFilename, markSaved]);
 
-  const showEditor = layout !== "preview";
-  const showPreview = layout !== "editor";
-
   return (
     <>
       {hasRestore && (
@@ -221,8 +158,6 @@ export default function App() {
       <Toolbar
         filename={filename}
         onFilenameChange={setFilename}
-        layout={layout}
-        onLayoutChange={setLayout}
         editorMode={editorMode}
         onEditorModeChange={setEditorMode}
         theme={theme}
@@ -235,47 +170,18 @@ export default function App() {
         onContentChange={setContent}
       />
 
-      <div
-        className="panels"
-        ref={panelsRef}
-        style={layout === "split" ? {} : {}}
-      >
-        {showEditor && (
-          <div
-            className="panel-editor"
-            style={
-              layout === "split" ? { flex: `0 0 ${dividerPos}%` } : undefined
-            }
-          >
-            {editorMode === "source" ? (
-              <MonacoEditor
-                value={content}
-                onChange={setContent}
-                editorRef={editorRef}
-                editorTheme={editorTheme}
-              />
-            ) : (
-              <VisualEditor value={content} onChange={setContent} />
-            )}
-          </div>
-        )}
-
-        {layout === "split" && (
-          <div className="panel-divider" onMouseDown={onDividerDown} />
-        )}
-
-        {showPreview && (
-          <div
-            className="panel-preview"
-            style={
-              layout === "split"
-                ? { flex: `0 0 ${100 - dividerPos}%` }
-                : undefined
-            }
-          >
-            <Preview content={content} theme={theme} errors={docState.errors} />
-          </div>
-        )}
+      <div className="panels" style={{ flex: 1 }}>
+        <div className="panel-editor" style={{ flex: 1 }}>
+          {editorMode === "source" ? (
+            <MonacoEditor
+              value={content}
+              onChange={setContent}
+              editorRef={editorRef}
+            />
+          ) : (
+            <VisualEditor value={content} onChange={setContent} />
+          )}
+        </div>
       </div>
 
       <StatusBar
@@ -286,10 +192,6 @@ export default function App() {
         errors={docState.errorCount}
         theme={theme}
         isUnsaved={isUnsaved}
-        editorTheme={editorTheme}
-        onToggleEditorTheme={() =>
-          setEditorTheme((t) => (t === "dark" ? "light" : "dark"))
-        }
         onErrorClick={() => {
           if (docState.firstErrorLine && editorRef.current) {
             editorRef.current.revealLineInCenter(docState.firstErrorLine);

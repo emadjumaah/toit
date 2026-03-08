@@ -22,8 +22,7 @@ export function parseToVisualBlocks(source: string): VisualBlock[] {
       const idx = lines.findIndex((l) => {
         const trimmed = l.trim();
         return (
-          trimmed.startsWith(`${block.type}:`) ||
-          trimmed.startsWith("```")
+          trimmed.startsWith(`${block.type}:`) || trimmed.startsWith("```")
         );
       });
       if (idx >= 0) originalLine = lines[idx];

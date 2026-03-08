@@ -18,9 +18,7 @@ const KNOWN_KEYWORDS = new Set(CANONICAL_KEYWORDS);
 export function useDocument(content: string): DocState {
   return useMemo(() => {
     const lines = content.split("\n").length;
-    const words = content
-      .split(/\s+/)
-      .filter((w) => w.length > 0).length;
+    const words = content.split(/\s+/).filter((w) => w.length > 0).length;
 
     let doc: IntentDocument | null = null;
     const errors: string[] = [];

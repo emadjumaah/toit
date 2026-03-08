@@ -25,7 +25,9 @@ function serializeBlock(block: VisualBlock): string {
 
   // Build pipe properties
   const propParts = Object.entries(properties)
-    .filter(([k, v]) => v !== undefined && v !== "" && k !== "id" && k !== "status")
+    .filter(
+      ([k, v]) => v !== undefined && v !== "" && k !== "id" && k !== "status",
+    )
     .map(([k, v]) => `${k}: ${v}`);
 
   const propString = propParts.length > 0 ? " | " + propParts.join(" | ") : "";
@@ -57,21 +59,66 @@ export function createEmptyBlock(type: string): VisualBlock {
     warning: () => ({ id, type, content: "Warning message", properties: {} }),
     danger: () => ({ id, type, content: "Danger notice", properties: {} }),
     success: () => ({ id, type, content: "Success message", properties: {} }),
-    code: () => ({ id, type, content: "// code here", properties: { lang: "js" } }),
+    code: () => ({
+      id,
+      type,
+      content: "// code here",
+      properties: { lang: "js" },
+    }),
     image: () => ({ id, type, content: "", properties: { src: "", alt: "" } }),
     link: () => ({ id, type, content: "Link text", properties: { to: "" } }),
-    cite: () => ({ id, type, content: "Source title", properties: { url: "" } }),
+    cite: () => ({
+      id,
+      type,
+      content: "Source title",
+      properties: { url: "" },
+    }),
     def: () => ({ id, type, content: "Term — Definition", properties: {} }),
-    figure: () => ({ id, type, content: "", properties: { src: "", caption: "" } }),
-    contact: () => ({ id, type, content: "Name", properties: { role: "", email: "" } }),
-    metric: () => ({ id, type, content: "Metric Name", properties: { value: "0", unit: "" } }),
-    deadline: () => ({ id, type, content: "Deadline", properties: { date: "", owner: "" } }),
+    figure: () => ({
+      id,
+      type,
+      content: "",
+      properties: { src: "", caption: "" },
+    }),
+    contact: () => ({
+      id,
+      type,
+      content: "Name",
+      properties: { role: "", email: "" },
+    }),
+    metric: () => ({
+      id,
+      type,
+      content: "Metric Name",
+      properties: { value: "0", unit: "" },
+    }),
+    deadline: () => ({
+      id,
+      type,
+      content: "Deadline",
+      properties: { date: "", owner: "" },
+    }),
     divider: () => ({ id, type, content: "", properties: {} }),
     break: () => ({ id, type, content: "", properties: {} }),
     ref: () => ({ id, type, content: "Referenced document", properties: {} }),
-    columns: () => ({ id, type, content: "Column A | Column B | Column C", properties: {} }),
-    row: () => ({ id, type, content: "Value 1 | Value 2 | Value 3", properties: {} }),
-    input: () => ({ id, type, content: "Field name", properties: { type: "text" } }),
+    columns: () => ({
+      id,
+      type,
+      content: "Column A | Column B | Column C",
+      properties: {},
+    }),
+    row: () => ({
+      id,
+      type,
+      content: "Value 1 | Value 2 | Value 3",
+      properties: {},
+    }),
+    input: () => ({
+      id,
+      type,
+      content: "Field name",
+      properties: { type: "text" },
+    }),
     output: () => ({ id, type, content: "Result", properties: {} }),
     step: () => ({ id, type, content: "Step description", properties: {} }),
     gate: () => ({ id, type, content: "Gate condition", properties: {} }),
@@ -82,9 +129,19 @@ export function createEmptyBlock(type: string): VisualBlock {
     approve: () => ({ id, type, content: "Approved", properties: { by: "" } }),
     sign: () => ({ id, type, content: "Signed", properties: { by: "" } }),
     freeze: () => ({ id, type, content: "Document sealed", properties: {} }),
-    amendment: () => ({ id, type, content: "Amendment", properties: { section: "", was: "", now: "" } }),
+    amendment: () => ({
+      id,
+      type,
+      content: "Amendment",
+      properties: { section: "", was: "", now: "" },
+    }),
     meta: () => ({ id, type, content: "", properties: { type: "document" } }),
-    context: () => ({ id, type, content: "Context information", properties: {} }),
+    context: () => ({
+      id,
+      type,
+      content: "Context information",
+      properties: {},
+    }),
     page: () => ({ id, type, content: "", properties: { size: "A4" } }),
     header: () => ({ id, type, content: "Header text", properties: {} }),
     footer: () => ({ id, type, content: "Footer text", properties: {} }),

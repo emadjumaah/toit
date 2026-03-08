@@ -4,7 +4,6 @@ import { registerLanguage } from "./language";
 import { registerThemes } from "./theme";
 import { registerCompletionProvider } from "./completion";
 import { registerHoverProvider } from "./hover";
-import type { EditorThemeMode } from "../App";
 
 // Self-hosted workers — Vite worker imports
 // @ts-expect-error Vite worker import
@@ -35,10 +34,9 @@ interface Props {
   value: string;
   onChange: (v: string) => void;
   editorRef: MutableRefObject<monaco.editor.IStandaloneCodeEditor | null>;
-  editorTheme: EditorThemeMode;
 }
 
-export function MonacoEditor({ value, onChange, editorRef, editorTheme }: Props) {
+export function MonacoEditor({ value, onChange, editorRef }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isSettingValue = useRef(false);
 
@@ -50,7 +48,7 @@ export function MonacoEditor({ value, onChange, editorRef, editorTheme }: Props)
     const editor = monaco.editor.create(el, {
       value,
       language: "intenttext",
-      theme: editorTheme === "dark" ? "intenttext-dark" : "intenttext-light",
+      theme: "intenttext-light",
       fontSize: 14,
       lineHeight: 24,
       fontFamily: '"JetBrains Mono", "Fira Code", monospace',
@@ -97,13 +95,6 @@ export function MonacoEditor({ value, onChange, editorRef, editorTheme }: Props)
       isSettingValue.current = false;
     }
   }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Theme changes
-  useEffect(() => {
-    monaco.editor.setTheme(
-      editorTheme === "dark" ? "intenttext-dark" : "intenttext-light"
-    );
-  }, [editorTheme]);
 
   return <div ref={containerRef} className="monaco-container" />;
 }

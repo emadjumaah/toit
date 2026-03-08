@@ -1,7 +1,11 @@
 import { useRef, useEffect, useCallback } from "react";
 import { LANGUAGE_REGISTRY } from "@intenttext/core";
 import { BlockTag } from "./BlockTag";
-import { CATEGORY_META, READ_ONLY_KEYWORDS, INLINE_EDITABLE_KEYWORDS } from "../types";
+import {
+  CATEGORY_META,
+  READ_ONLY_KEYWORDS,
+  INLINE_EDITABLE_KEYWORDS,
+} from "../types";
 import type { VisualBlock } from "../types";
 
 interface BlockProps {
@@ -64,10 +68,34 @@ export function BlockRenderer({
       {/* Inline actions — visible on selection */}
       {isSelected && !isFrozen && (
         <div className="it-block-actions">
-          <button onClick={onMoveUp} title="Move up" className="it-block-action">↑</button>
-          <button onClick={onMoveDown} title="Move down" className="it-block-action">↓</button>
-          <button onClick={onInsertAfter} title="Add block below" className="it-block-action">+</button>
-          <button onClick={onDelete} title="Delete block" className="it-block-action it-block-action-delete">×</button>
+          <button
+            onClick={onMoveUp}
+            title="Move up"
+            className="it-block-action"
+          >
+            ↑
+          </button>
+          <button
+            onClick={onMoveDown}
+            title="Move down"
+            className="it-block-action"
+          >
+            ↓
+          </button>
+          <button
+            onClick={onInsertAfter}
+            title="Add block below"
+            className="it-block-action"
+          >
+            +
+          </button>
+          <button
+            onClick={onDelete}
+            title="Delete block"
+            className="it-block-action it-block-action-delete"
+          >
+            ×
+          </button>
         </div>
       )}
     </div>
@@ -152,7 +180,11 @@ function renderBlockContent(
   // Callouts: tip, info, warning, danger, success
   if (["tip", "info", "warning", "danger", "success"].includes(type)) {
     const icons: Record<string, string> = {
-      tip: "💡", info: "ℹ️", warning: "⚠️", danger: "🚨", success: "✅",
+      tip: "💡",
+      info: "ℹ️",
+      warning: "⚠️",
+      danger: "🚨",
+      success: "✅",
     };
     return (
       <div className={`it-callout it-callout-${type}`}>
@@ -183,9 +215,15 @@ function renderBlockContent(
         />
         {(block.properties.by || !isReadOnly) && (
           <div className="it-quote-attr">
-            — <EditableInline
+            —{" "}
+            <EditableInline
               value={block.properties.by || ""}
-              onChange={(v) => onUpdate({ ...block, properties: { ...block.properties, by: v } })}
+              onChange={(v) =>
+                onUpdate({
+                  ...block,
+                  properties: { ...block.properties, by: v },
+                })
+              }
               readOnly={isReadOnly}
               placeholder="Attribution"
             />
@@ -202,7 +240,12 @@ function renderBlockContent(
         <div className="it-code-lang">
           <EditableInline
             value={block.properties.lang || ""}
-            onChange={(v) => onUpdate({ ...block, properties: { ...block.properties, lang: v } })}
+            onChange={(v) =>
+              onUpdate({
+                ...block,
+                properties: { ...block.properties, lang: v },
+              })
+            }
             readOnly={isReadOnly}
             placeholder="lang"
           />
@@ -235,7 +278,12 @@ function renderBlockContent(
             {!isReadOnly && (
               <EditableInline
                 value={block.properties.src || ""}
-                onChange={(v) => onUpdate({ ...block, properties: { ...block.properties, src: v } })}
+                onChange={(v) =>
+                  onUpdate({
+                    ...block,
+                    properties: { ...block.properties, src: v },
+                  })
+                }
                 readOnly={isReadOnly}
                 placeholder="Enter image URL"
               />
@@ -254,13 +302,23 @@ function renderBlockContent(
     return (
       <div className="it-figure-block">
         {block.properties.src ? (
-          <img src={block.properties.src} alt={block.content} className="it-image" />
+          <img
+            src={block.properties.src}
+            alt={block.content}
+            className="it-image"
+          />
         ) : (
           <div className="it-image-placeholder">🖼️ Figure</div>
         )}
         <EditableText
           value={block.properties.caption || block.content}
-          onChange={(v) => onUpdate({ ...block, content: v, properties: { ...block.properties, caption: v } })}
+          onChange={(v) =>
+            onUpdate({
+              ...block,
+              content: v,
+              properties: { ...block.properties, caption: v },
+            })
+          }
           readOnly={isReadOnly}
           className="it-figure-caption"
           placeholder="Figure caption"
@@ -284,7 +342,9 @@ function renderBlockContent(
           />
           <EditableInline
             value={block.properties.to || ""}
-            onChange={(v) => onUpdate({ ...block, properties: { ...block.properties, to: v } })}
+            onChange={(v) =>
+              onUpdate({ ...block, properties: { ...block.properties, to: v } })
+            }
             readOnly={isReadOnly}
             placeholder="URL"
           />
@@ -308,7 +368,12 @@ function renderBlockContent(
           />
           <EditableInline
             value={block.properties.url || ""}
-            onChange={(v) => onUpdate({ ...block, properties: { ...block.properties, url: v } })}
+            onChange={(v) =>
+              onUpdate({
+                ...block,
+                properties: { ...block.properties, url: v },
+              })
+            }
             readOnly={isReadOnly}
             placeholder="URL"
           />
@@ -324,14 +389,18 @@ function renderBlockContent(
       <div className="it-def-block">
         <EditableInline
           value={parts[0] || ""}
-          onChange={(v) => onUpdate({ ...block, content: `${v} — ${parts[1] || ""}` })}
+          onChange={(v) =>
+            onUpdate({ ...block, content: `${v} — ${parts[1] || ""}` })
+          }
           readOnly={isReadOnly}
           placeholder="Term"
         />
         <span className="it-def-sep">—</span>
         <EditableInline
           value={parts[1] || ""}
-          onChange={(v) => onUpdate({ ...block, content: `${parts[0] || ""} — ${v}` })}
+          onChange={(v) =>
+            onUpdate({ ...block, content: `${parts[0] || ""} — ${v}` })
+          }
           readOnly={isReadOnly}
           placeholder="Definition"
         />
@@ -355,9 +424,27 @@ function renderBlockContent(
             placeholder="Name"
           />
           <div className="it-contact-details">
-            <PropertyField block={block} prop="role" label="Role" readOnly={isReadOnly} onUpdate={onUpdate} />
-            <PropertyField block={block} prop="email" label="Email" readOnly={isReadOnly} onUpdate={onUpdate} />
-            <PropertyField block={block} prop="phone" label="Phone" readOnly={isReadOnly} onUpdate={onUpdate} />
+            <PropertyField
+              block={block}
+              prop="role"
+              label="Role"
+              readOnly={isReadOnly}
+              onUpdate={onUpdate}
+            />
+            <PropertyField
+              block={block}
+              prop="email"
+              label="Email"
+              readOnly={isReadOnly}
+              onUpdate={onUpdate}
+            />
+            <PropertyField
+              block={block}
+              prop="phone"
+              label="Phone"
+              readOnly={isReadOnly}
+              onUpdate={onUpdate}
+            />
           </div>
         </div>
       </div>
@@ -368,7 +455,12 @@ function renderBlockContent(
   if (type === "metric") {
     const trend = block.properties.trend;
     const trendIcon = trend === "up" ? "↑" : trend === "down" ? "↓" : "→";
-    const trendColor = trend === "up" ? "var(--success)" : trend === "down" ? "var(--error)" : "var(--text-muted)";
+    const trendColor =
+      trend === "up"
+        ? "var(--success)"
+        : trend === "down"
+          ? "var(--error)"
+          : "var(--text-muted)";
     return (
       <div className="it-metric-card">
         <div className="it-metric-label">
@@ -383,16 +475,27 @@ function renderBlockContent(
           <span className="it-metric-value">
             <EditableInline
               value={block.properties.value || ""}
-              onChange={(v) => onUpdate({ ...block, properties: { ...block.properties, value: v } })}
+              onChange={(v) =>
+                onUpdate({
+                  ...block,
+                  properties: { ...block.properties, value: v },
+                })
+              }
               readOnly={isReadOnly}
               placeholder="0"
             />
           </span>
           <span className="it-metric-unit">{block.properties.unit || ""}</span>
-          {trend && <span className="it-metric-trend" style={{ color: trendColor }}>{trendIcon}</span>}
+          {trend && (
+            <span className="it-metric-trend" style={{ color: trendColor }}>
+              {trendIcon}
+            </span>
+          )}
         </div>
         {block.properties.target && (
-          <div className="it-metric-target">Target: {block.properties.target}</div>
+          <div className="it-metric-target">
+            Target: {block.properties.target}
+          </div>
         )}
       </div>
     );
@@ -411,8 +514,20 @@ function renderBlockContent(
             placeholder="Deadline description"
           />
           <div className="it-deadline-details">
-            <PropertyField block={block} prop="date" label="Date" readOnly={isReadOnly} onUpdate={onUpdate} />
-            <PropertyField block={block} prop="owner" label="Owner" readOnly={isReadOnly} onUpdate={onUpdate} />
+            <PropertyField
+              block={block}
+              prop="date"
+              label="Date"
+              readOnly={isReadOnly}
+              onUpdate={onUpdate}
+            />
+            <PropertyField
+              block={block}
+              prop="owner"
+              label="Owner"
+              readOnly={isReadOnly}
+              onUpdate={onUpdate}
+            />
           </div>
         </div>
       </div>
@@ -440,7 +555,9 @@ function renderBlockContent(
           readOnly={isReadOnly}
           placeholder="Referenced document"
         />
-        {block.properties.rel && <span className="it-ref-rel">{block.properties.rel}</span>}
+        {block.properties.rel && (
+          <span className="it-ref-rel">{block.properties.rel}</span>
+        )}
       </div>
     );
   }
@@ -451,7 +568,9 @@ function renderBlockContent(
     return (
       <div className="it-table-header">
         {cols.map((col, i) => (
-          <span key={i} className="it-table-cell it-table-th">{col}</span>
+          <span key={i} className="it-table-cell it-table-th">
+            {col}
+          </span>
         ))}
       </div>
     );
@@ -462,7 +581,9 @@ function renderBlockContent(
     return (
       <div className="it-table-row">
         {cells.map((cell, i) => (
-          <span key={i} className="it-table-cell">{cell}</span>
+          <span key={i} className="it-table-cell">
+            {cell}
+          </span>
         ))}
       </div>
     );
@@ -480,7 +601,9 @@ function renderBlockContent(
           readOnly={isReadOnly}
           placeholder={type === "input" ? "Input field" : "Output result"}
         />
-        {block.properties.type && <span className="it-io-type">{block.properties.type}</span>}
+        {block.properties.type && (
+          <span className="it-io-type">{block.properties.type}</span>
+        )}
       </div>
     );
   }
@@ -493,8 +616,12 @@ function renderBlockContent(
         <div>
           <strong>Approved</strong>
           {block.properties.by && <span> by {block.properties.by}</span>}
-          {block.properties.role && <span className="it-trust-role"> ({block.properties.role})</span>}
-          {block.properties.at && <div className="it-trust-time">{block.properties.at}</div>}
+          {block.properties.role && (
+            <span className="it-trust-role"> ({block.properties.role})</span>
+          )}
+          {block.properties.at && (
+            <div className="it-trust-time">{block.properties.at}</div>
+          )}
         </div>
       </div>
     );
@@ -507,8 +634,12 @@ function renderBlockContent(
         <div>
           <strong>Signed</strong>
           {block.properties.by && <span> by {block.properties.by}</span>}
-          {block.properties.role && <span className="it-trust-role"> ({block.properties.role})</span>}
-          {block.properties.at && <div className="it-trust-time">{block.properties.at}</div>}
+          {block.properties.role && (
+            <span className="it-trust-role"> ({block.properties.role})</span>
+          )}
+          {block.properties.at && (
+            <div className="it-trust-time">{block.properties.at}</div>
+          )}
         </div>
       </div>
     );
@@ -521,7 +652,9 @@ function renderBlockContent(
         <strong>Document Sealed</strong>
         {block.properties.by && <span> by {block.properties.by}</span>}
         {block.properties.hash && (
-          <code className="it-freeze-hash">{block.properties.hash.slice(0, 12)}…</code>
+          <code className="it-freeze-hash">
+            {block.properties.hash.slice(0, 12)}…
+          </code>
         )}
       </div>
     );
@@ -533,7 +666,9 @@ function renderBlockContent(
         <span>📜</span>
         <span>v{block.content}</span>
         {block.properties.by && <span> — {block.properties.by}</span>}
-        {block.properties.at && <span className="it-trust-time"> {block.properties.at}</span>}
+        {block.properties.at && (
+          <span className="it-trust-time"> {block.properties.at}</span>
+        )}
       </div>
     );
   }
@@ -544,9 +679,13 @@ function renderBlockContent(
         <span>📝</span>
         <div>
           <strong>Amendment</strong>
-          {block.properties.section && <span> — {block.properties.section}</span>}
+          {block.properties.section && (
+            <span> — {block.properties.section}</span>
+          )}
           {block.properties.was && (
-            <div className="it-amend-was"><s>{block.properties.was}</s></div>
+            <div className="it-amend-was">
+              <s>{block.properties.was}</s>
+            </div>
           )}
           {block.properties.now && (
             <div className="it-amend-now">{block.properties.now}</div>
@@ -571,11 +710,7 @@ function renderBlockContent(
   }
 
   if (type === "history") {
-    return (
-      <div className="it-history-boundary">
-        ── Document History ──
-      </div>
-    );
+    return <div className="it-history-boundary">── Document History ──</div>;
   }
 
   // Meta block — key:value chips
@@ -621,23 +756,71 @@ function renderBlockContent(
   }
 
   // Layout blocks
-  if (["page", "font", "header", "footer", "watermark", "signline"].includes(type)) {
-    return <LayoutBlockRenderer block={block} isReadOnly={isReadOnly} onUpdate={onUpdate} />;
+  if (
+    ["page", "font", "header", "footer", "watermark", "signline"].includes(type)
+  ) {
+    return (
+      <LayoutBlockRenderer
+        block={block}
+        isReadOnly={isReadOnly}
+        onUpdate={onUpdate}
+      />
+    );
   }
 
   // Agent / workflow blocks
   const agentTypes = new Set([
-    "step", "gate", "trigger", "signal", "decision", "memory", "prompt",
-    "tool", "audit", "done", "error", "result", "handoff", "wait",
-    "parallel", "retry", "call", "loop", "checkpoint", "import", "export",
-    "progress", "assert", "secret", "task", "ask", "agent", "model",
+    "step",
+    "gate",
+    "trigger",
+    "signal",
+    "decision",
+    "memory",
+    "prompt",
+    "tool",
+    "audit",
+    "done",
+    "error",
+    "result",
+    "handoff",
+    "wait",
+    "parallel",
+    "retry",
+    "call",
+    "loop",
+    "checkpoint",
+    "import",
+    "export",
+    "progress",
+    "assert",
+    "secret",
+    "task",
+    "ask",
+    "agent",
+    "model",
   ]);
   if (agentTypes.has(type)) {
-    return <AgentBlockRenderer block={block} isReadOnly={isReadOnly} onUpdate={onUpdate} />;
+    return (
+      <AgentBlockRenderer
+        block={block}
+        isReadOnly={isReadOnly}
+        onUpdate={onUpdate}
+      />
+    );
   }
 
   // Literary / content extras
-  if (["byline", "epigraph", "caption", "footnote", "dedication", "toc", "embed"].includes(type)) {
+  if (
+    [
+      "byline",
+      "epigraph",
+      "caption",
+      "footnote",
+      "dedication",
+      "toc",
+      "embed",
+    ].includes(type)
+  ) {
     return (
       <EditableText
         value={block.content}
@@ -673,12 +856,35 @@ function AgentBlockRenderer({
   onUpdate: (b: VisualBlock) => void;
 }) {
   const icons: Record<string, string> = {
-    step: "⚙️", gate: "🚦", trigger: "⚡", signal: "📡", decision: "🔀",
-    memory: "🧠", prompt: "💬", tool: "🔧", audit: "✓", done: "✅",
-    error: "❌", result: "📋", handoff: "🤝", wait: "⏳", parallel: "⏸",
-    retry: "🔄", call: "📞", loop: "🔁", checkpoint: "📍", import: "📥",
-    export: "📤", progress: "📊", assert: "✓", secret: "🔑", task: "☑️",
-    ask: "❓", agent: "🤖", model: "🧩", policy: "🛡️",
+    step: "⚙️",
+    gate: "🚦",
+    trigger: "⚡",
+    signal: "📡",
+    decision: "🔀",
+    memory: "🧠",
+    prompt: "💬",
+    tool: "🔧",
+    audit: "✓",
+    done: "✅",
+    error: "❌",
+    result: "📋",
+    handoff: "🤝",
+    wait: "⏳",
+    parallel: "⏸",
+    retry: "🔄",
+    call: "📞",
+    loop: "🔁",
+    checkpoint: "📍",
+    import: "📥",
+    export: "📤",
+    progress: "📊",
+    assert: "✓",
+    secret: "🔑",
+    task: "☑️",
+    ask: "❓",
+    agent: "🤖",
+    model: "🧩",
+    policy: "🛡️",
   };
 
   const propEntries = Object.entries(block.properties).filter(
@@ -722,8 +928,12 @@ function LayoutBlockRenderer({
   onUpdate: (b: VisualBlock) => void;
 }) {
   const icons: Record<string, string> = {
-    page: "📄", font: "🔤", header: "↑", footer: "↓",
-    watermark: "💧", signline: "✒️",
+    page: "📄",
+    font: "🔤",
+    header: "↑",
+    footer: "↓",
+    watermark: "💧",
+    signline: "✒️",
   };
 
   const propEntries = Object.entries(block.properties).filter(
@@ -735,7 +945,9 @@ function LayoutBlockRenderer({
       <span className="it-layout-icon">{icons[block.type] || "📄"}</span>
       <div className="it-layout-body">
         <span className="it-layout-type">{block.type}</span>
-        {block.content && <span className="it-layout-content">{block.content}</span>}
+        {block.content && (
+          <span className="it-layout-content">{block.content}</span>
+        )}
         {propEntries.length > 0 && (
           <div className="it-layout-props">
             {propEntries.map(([k, v]) => (
@@ -783,11 +995,14 @@ function EditableText({
     }
   }, [onChange]);
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (!multiline && e.key === "Enter") {
-      e.preventDefault();
-    }
-  }, [multiline]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (!multiline && e.key === "Enter") {
+        e.preventDefault();
+      }
+    },
+    [multiline],
+  );
 
   if (readOnly) {
     return (
