@@ -41,14 +41,21 @@ function toMarkdown(content: string): string {
         case "quote":
           lines.push(`\n> ${c}`);
           break;
-        case "warning":
-          lines.push(`\n> **Warning:** ${c}`);
-          break;
-        case "tip":
-          lines.push(`\n> **Tip:** ${c}`);
-          break;
         case "info":
-          lines.push(`\n> **Info:** ${c}`);
+          {
+            const infoType = String(b.properties?.type ?? "info");
+            const label =
+              infoType === "warning"
+                ? "Warning"
+                : infoType === "tip"
+                  ? "Tip"
+                  : infoType === "danger"
+                    ? "Danger"
+                    : infoType === "success"
+                      ? "Success"
+                      : "Info";
+            lines.push(`\n> **${label}:** ${c}`);
+          }
           break;
         case "link":
           lines.push(`[${c}](${b.properties?.to ?? "#"})`);
