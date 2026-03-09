@@ -1,48 +1,32 @@
 import { useMemo, useState } from "react";
-import { parseIntentText } from "@intenttext/core";
+import {
+  runtimeAdapter,
+  type WorkflowRuntimeState,
+} from "./runtimeAdapter";
 
 interface Props {
   content: string;
 }
 
-const EXEC_TYPES = new Set([
-  "step",
-  "decision",
-  "gate",
-  "result",
-  "task",
-  "ask",
-]);
-
 export function WorkflowShowcasePanel({ content }: Props) {
-  const [running, setRunning] = useState(false);
-  const [cursor, setCursor] = useState(0);
+  const [state, setState] = useState<WorkflowRuntimeState>({
+    running: false,
+    cursor: 0,
+    nodes: [],
+  });
 
   const nodes = useMemo(() => {
-    try {
-      const doc = parseIntentText(content);
-      return doc.blocks
-        .filter((b) => EXEC_TYPES.has(b.type))
-        .map((b) => ({
-          id: String(b.properties?.id || b.id || b.type),
-          type: b.type,
-          label: b.content || b.type,
-          depends: String(b.properties?.depends || ""),
-        }));
-    } catch {
-      return [] as Array<{
-        id: string;
-        type: string;
-        label: string;
-        depends: string;
-      }>;
-    }
+    return runtimeAdapter.getNodes(content);
   }, [content]);
 
+  const viewState: WorkflowRuntimeState = {
+    ...state,
+    nodes,
+    cursor: nodes.length === 0 ? 0 : Math.min(state.cursor, nodes.length - 1),
+  };
+
   const runStep = () => {
-    if (nodes.length === 0) return;
-    setRunning(true);
-    setCursor((c) => (c + 1) % nodes.length);
+    setState((prev) => runtimeAdapter.advance({ ...prev, nodes }));
   };
 
   return (
@@ -56,7 +40,7 @@ export function WorkflowShowcasePanel({ content }: Props) {
 
       <div className="showcase-statline">
         <span>{nodes.length} executable blocks</span>
-        <span>{running ? "Running" : "Idle"}</span>
+        <span>{viewState.running ? `Running (${runtimeAdapter.mode})` : "Idle"}</span>
       </div>
 
       <div className="workflow-list">
@@ -67,7 +51,11 @@ export function WorkflowShowcasePanel({ content }: Props) {
         )}
         {nodes.map((n, i) => {
           const status =
-            i < cursor ? "done" : i === cursor && running ? "active" : "queued";
+            i < viewState.cursor
+              ? "done"
+              : i === viewState.cursor && viewState.running
+                ? "active"
+                : "queued";
           return (
             <div key={`${n.id}-${i}`} className={`workflow-item ${status}`}>
               <div className="workflow-type">{n.type}</div>
@@ -83,10 +71,7 @@ export function WorkflowShowcasePanel({ content }: Props) {
       <div className="showcase-actions">
         <button onClick={runStep}>Advance Step</button>
         <button
-          onClick={() => {
-            setRunning(false);
-            setCursor(0);
-          }}
+          onClick={() => setState((prev) => runtimeAdapter.reset({ ...prev, nodes }))}
         >
           Reset
         </button>
