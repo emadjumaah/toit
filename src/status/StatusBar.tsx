@@ -5,7 +5,9 @@ interface Props {
   words: number;
   errors: number;
   theme: string;
+  uiTheme: "light" | "dark";
   isUnsaved: boolean;
+  onToggleUiTheme: () => void;
   onErrorClick: () => void;
 }
 
@@ -16,7 +18,9 @@ export function StatusBar({
   words,
   errors,
   theme,
+  uiTheme,
   isUnsaved,
+  onToggleUiTheme,
   onErrorClick,
 }: Props) {
   return (
@@ -61,6 +65,21 @@ export function StatusBar({
       <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
         <span>v3.1.0</span>
         <span>Theme: {theme}</span>
+        <button
+          onClick={onToggleUiTheme}
+          title="Toggle light or dark UI"
+          style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            fontSize: 14,
+            padding: 0,
+            lineHeight: 1,
+            color: "var(--text-muted)",
+          }}
+        >
+          {uiTheme === "dark" ? "☀" : "☾"}
+        </button>
         <span>
           {isUnsaved ? (
             <span style={{ color: "var(--warning)" }}>● Unsaved</span>

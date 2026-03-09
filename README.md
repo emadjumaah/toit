@@ -1,6 +1,6 @@
-# IntentText Editor
+# Dotit Web
 
-IntentText Editor is the browser editor experience for `.it` documents, built on `@intenttext/core`.
+Dotit Web is the browser editor experience for `.it` documents, built on `@intenttext/core`.
 
 The app includes:
 

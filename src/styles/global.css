@@ -1,6 +1,25 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap");
 
-:root {
+:root,
+[data-theme="light"] {
+  --bg-app: #f6f8fb;
+  --bg-toolbar: #ffffff;
+  --bg-panel: #ffffff;
+  --bg-modal: #ffffff;
+  --border: #d8e0ea;
+  --text-primary: #1f2937;
+  --text-muted: #64748b;
+  --accent: #2563eb;
+  --purple: #2563eb;
+  --success: #16a34a;
+  --warning: #ca8a04;
+  --error: #dc2626;
+
+  --toolbar-h: 48px;
+  --status-h: 28px;
+}
+
+[data-theme="dark"] {
   --bg-app: #0d1117;
   --bg-toolbar: #111720;
   --bg-panel: #161b22;
@@ -39,10 +58,10 @@ body::before {
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 12% 10%, rgba(245, 158, 11, 0.16), transparent 42%),
-    radial-gradient(circle at 88% 12%, rgba(88, 166, 255, 0.12), transparent 40%),
-    radial-gradient(circle at 70% 82%, rgba(188, 140, 255, 0.12), transparent 44%),
-    linear-gradient(180deg, #0d1117 0%, #111720 100%);
+    radial-gradient(circle at 12% 10%, rgba(37, 99, 235, 0.1), transparent 42%),
+    radial-gradient(circle at 88% 12%, rgba(14, 165, 233, 0.08), transparent 40%),
+    radial-gradient(circle at 70% 82%, rgba(148, 163, 184, 0.1), transparent 44%),
+    linear-gradient(180deg, #f6f8fb 0%, #eef3f8 100%);
   z-index: -2;
 }
 
@@ -51,11 +70,25 @@ body::after {
   position: fixed;
   inset: 0;
   pointer-events: none;
+  background-image: linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+  background-size: 22px 22px;
+  opacity: 0.22;
+  z-index: -1;
+}
+
+[data-theme="dark"] body::before {
+  background:
+    radial-gradient(circle at 12% 10%, rgba(245, 158, 11, 0.16), transparent 42%),
+    radial-gradient(circle at 88% 12%, rgba(88, 166, 255, 0.12), transparent 40%),
+    radial-gradient(circle at 70% 82%, rgba(188, 140, 255, 0.12), transparent 44%),
+    linear-gradient(180deg, #0d1117 0%, #111720 100%);
+}
+
+[data-theme="dark"] body::after {
   background-image: linear-gradient(rgba(230, 237, 243, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(230, 237, 243, 0.03) 1px, transparent 1px);
-  background-size: 22px 22px;
   opacity: 0.35;
-  z-index: -1;
 }
 
 #root {
@@ -69,14 +102,22 @@ body::after {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, rgba(17, 23, 32, 0.96), rgba(13, 17, 23, 0.96));
-  border: 1px solid rgba(48, 54, 61, 0.92);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 248, 251, 0.96));
+  border: 1px solid rgba(216, 224, 234, 0.92);
   border-radius: 18px;
   overflow: hidden;
   box-shadow:
+    0 12px 36px rgba(15, 23, 42, 0.15),
+    0 1px 6px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(4px);
+}
+
+[data-theme="dark"] .app-shell {
+  background: linear-gradient(180deg, rgba(17, 23, 32, 0.96), rgba(13, 17, 23, 0.96));
+  border: 1px solid rgba(48, 54, 61, 0.92);
+  box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.42),
     0 2px 12px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(4px);
 }
 
 .showcase-tabs {
@@ -85,6 +126,29 @@ body::after {
   align-items: stretch;
   background: var(--bg-app);
   border-bottom: 1px solid var(--border);
+}
+
+.showcase-mode-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.showcase-mode-switch button {
+  border: 1px solid var(--border);
+  background: var(--bg-toolbar);
+  color: var(--text-muted);
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.showcase-mode-switch button.active {
+  border-color: var(--accent);
+  color: var(--text-primary);
+  background: rgba(37, 99, 235, 0.08);
 }
 
 .showcase-tab {
@@ -114,7 +178,7 @@ body::after {
   min-width: 360px;
   max-width: 360px;
   border-left: 1px solid var(--border);
-  background: #121923;
+  background: var(--bg-panel);
   display: flex;
   flex-direction: column;
 }
@@ -151,7 +215,7 @@ body::after {
   width: 100%;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: #0d141d;
+  background: var(--bg-toolbar);
   color: var(--text-primary);
   padding: 9px 10px;
 }
@@ -160,7 +224,7 @@ body::after {
   width: 100%;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: #0d141d;
+  background: var(--bg-toolbar);
   color: var(--text-primary);
   padding: 9px 10px;
 }
@@ -174,7 +238,7 @@ body::after {
 
 .showcase-chip {
   border: 1px solid var(--border);
-  background: #0f151f;
+  background: var(--bg-toolbar);
   border-radius: 999px;
   color: var(--text-primary);
   font-size: 11px;
@@ -224,7 +288,7 @@ body::after {
   width: 100%;
   text-align: left;
   border: 1px solid var(--border);
-  background: #0f151f;
+  background: var(--bg-toolbar);
   border-radius: 10px;
   padding: 10px;
   margin-bottom: 8px;
@@ -264,7 +328,7 @@ body::after {
   padding: 10px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: #0f151f;
+  background: var(--bg-toolbar);
   font-size: 12px;
 }
 
@@ -291,7 +355,7 @@ body::after {
   padding: 10px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: #0f151f;
+  background: var(--bg-toolbar);
 }
 
 .showcase-amend-form label {
@@ -306,7 +370,7 @@ body::after {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 8px;
-  background: #0d141d;
+  background: var(--bg-panel);
   color: var(--text-primary);
   margin-bottom: 4px;
 }
@@ -317,7 +381,7 @@ body::after {
   padding: 10px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: #0f151f;
+  background: var(--bg-toolbar);
 }
 
 .showcase-context label,
@@ -495,7 +559,7 @@ body::after {
 .showcase-actions button,
 .showcase-guide-item {
   border: 1px solid var(--border);
-  background: #0f151f;
+  background: var(--bg-toolbar);
   color: var(--text-primary);
   border-radius: 8px;
   padding: 8px 10px;

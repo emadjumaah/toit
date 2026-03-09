@@ -3,6 +3,8 @@ import { runtimeAdapter, type WorkflowRuntimeState } from "./runtimeAdapter";
 
 interface Props {
   content: string;
+  mode: "search" | "trust" | "workflow";
+  onModeChange: (mode: "search" | "trust" | "workflow") => void;
 }
 
 type NodeStatus = "pending" | "running" | "done" | "blocked" | "failed";
@@ -19,7 +21,7 @@ function nowStamp(): string {
   return new Date().toLocaleTimeString("en-GB", { hour12: false });
 }
 
-export function WorkflowShowcasePanel({ content }: Props) {
+export function WorkflowShowcasePanel({ content, mode, onModeChange }: Props) {
   const [state, setState] = useState<WorkflowRuntimeState>({
     running: false,
     cursor: 0,
@@ -188,6 +190,30 @@ export function WorkflowShowcasePanel({ content }: Props) {
         <p>
           Live step execution with gate pause/approve flow (in-memory demo).
         </p>
+        <div
+          className="showcase-mode-switch"
+          role="tablist"
+          aria-label="Showcase modes"
+        >
+          <button
+            className={mode === "search" ? "active" : ""}
+            onClick={() => onModeChange("search")}
+          >
+            Search
+          </button>
+          <button
+            className={mode === "trust" ? "active" : ""}
+            onClick={() => onModeChange("trust")}
+          >
+            Trust
+          </button>
+          <button
+            className={mode === "workflow" ? "active" : ""}
+            onClick={() => onModeChange("workflow")}
+          >
+            Workflow
+          </button>
+        </div>
       </div>
 
       <div className="showcase-statline">

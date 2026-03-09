@@ -3,8 +3,6 @@ import { Toolbar } from "./toolbar/Toolbar";
 import { StatusBar } from "./status/StatusBar";
 import { MonacoEditor } from "./editor/MonacoEditor";
 import { VisualEditor } from "./visual/VisualEditor";
-import { DocumentPanel } from "./panels/DocumentPanel";
-import { TrustPanel } from "./panels/TrustPanel";
 import { PrintBar } from "./panels/PrintBar";
 import { SealModal } from "./modals/SealModal";
 import { VerifyModal } from "./modals/VerifyModal";
@@ -32,10 +30,10 @@ import {
 } from "./showcase/demoVault";
 
 const WELCOME = `title: My First Document
-summary: A document written in IntentText
+summary: A document written in Dotit
 
 section: Getting Started
-text: IntentText uses a frozen canonical keyword contract in core.
+text: Dotit uses a frozen canonical keyword contract in core.
 text: The preview on the right updates as you type.
 info: Try changing the theme using the Theme picker above. | type: tip
 
@@ -70,6 +68,10 @@ export default function App() {
   const [theme, setTheme] = useState(
     () => localStorage.getItem("it-editor-theme") || "corporate",
   );
+  const [uiTheme, setUiTheme] = useState<"light" | "dark">(
+    () =>
+      (localStorage.getItem("it-editor-color") as "light" | "dark") || "light",
+  );
   const [modal, setModal] = useState<ModalType>(null);
   const [showcaseMode, setShowcaseMode] = useState<ShowcaseMode>("search");
   const [trustShowcaseDocId, setTrustShowcaseDocId] =
@@ -80,28 +82,13 @@ export default function App() {
   );
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 
-  // Panel visibility
-  const [showDocPanel, setShowDocPanel] = useState(
-    () => localStorage.getItem("it-editor-doc-panel") !== "false",
-  );
-  const [showTrustPanel, setShowTrustPanel] = useState(
-    () => localStorage.getItem("it-editor-trust-panel") === "true",
-  );
-
-  useEffect(() => {
-    localStorage.setItem("it-editor-doc-panel", String(showDocPanel));
-  }, [showDocPanel]);
-  useEffect(() => {
-    localStorage.setItem("it-editor-trust-panel", String(showTrustPanel));
-  }, [showTrustPanel]);
-
-  // Always light mode
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", "light");
-  }, []);
   useEffect(() => {
     localStorage.setItem("it-editor-theme", theme);
   }, [theme]);
+  useEffect(() => {
+    localStorage.setItem("it-editor-color", uiTheme);
+    document.documentElement.setAttribute("data-theme", uiTheme);
+  }, [uiTheme]);
   useEffect(() => {
     localStorage.setItem("it-editor-mode", editorMode);
   }, [editorMode]);
@@ -223,31 +210,6 @@ export default function App() {
       )}
 
       <div className="app-shell">
-        <div
-          className="showcase-tabs"
-          role="tablist"
-          aria-label="Showcase modes"
-        >
-          <button
-            className={`showcase-tab ${showcaseMode === "search" ? "active" : ""}`}
-            onClick={() => setShowcaseMode("search")}
-          >
-            Search
-          </button>
-          <button
-            className={`showcase-tab ${showcaseMode === "trust" ? "active" : ""}`}
-            onClick={() => setShowcaseMode("trust")}
-          >
-            Trust
-          </button>
-          <button
-            className={`showcase-tab ${showcaseMode === "workflow" ? "active" : ""}`}
-            onClick={() => setShowcaseMode("workflow")}
-          >
-            Workflow
-          </button>
-        </div>
-
         <Toolbar
           filename={filename}
           onFilenameChange={setFilename}
@@ -259,29 +221,10 @@ export default function App() {
           onOpen={openFile}
           onSave={saveFile}
           onModal={setModal}
-          showDocPanel={showDocPanel}
-          onToggleDocPanel={() => setShowDocPanel((p) => !p)}
-          showTrustPanel={showTrustPanel}
-          onToggleTrustPanel={() => setShowTrustPanel((p) => !p)}
           isSealed={trustState.trust.isSealed}
         />
 
         <div className="panels" style={{ flex: 1 }}>
-          {showDocPanel && (
-            <DocumentPanel
-              meta={docMeta.meta}
-              onTitleChange={docMeta.setTitle}
-              onSummaryChange={docMeta.setSummary}
-              onBylineChange={docMeta.setByline}
-              onFontChange={docMeta.setFont}
-              onPageChange={docMeta.setPage}
-              onHeaderChange={docMeta.setHeader}
-              onFooterChange={docMeta.setFooter}
-              onWatermarkChange={docMeta.setWatermark}
-              onTocChange={docMeta.setToc}
-            />
-          )}
-
           <div className="panel-editor" style={{ flex: 1 }}>
             {editorMode === "source" ? (
               <MonacoEditor
@@ -298,26 +241,18 @@ export default function App() {
             )}
           </div>
 
-          {showTrustPanel && (
-            <TrustPanel
-              trust={trustState.trust}
-              onTrack={trustState.startTracking}
-              onApprove={trustState.addApproval}
-              onSign={trustState.addSignature}
-              onSeal={trustState.seal}
-              onVerify={trustState.verify}
-              onAmend={trustState.addAmendment}
-            />
-          )}
-
           {showcaseMode === "search" && (
             <SearchShowcasePanel
               activeTitle={docMeta.meta.title}
               onLoadDemo={loadDemoDoc}
+              mode={showcaseMode}
+              onModeChange={setShowcaseMode}
             />
           )}
           {showcaseMode === "trust" && (
             <TrustShowcasePanel
+              mode={showcaseMode}
+              onModeChange={setShowcaseMode}
               trust={trustState.trust}
               demoDocs={DEMO_DOCS}
               activeDocId={trustShowcaseDocId}
@@ -333,7 +268,11 @@ export default function App() {
             />
           )}
           {showcaseMode === "workflow" && (
-            <WorkflowShowcasePanel content={content} />
+            <WorkflowShowcasePanel
+              content={content}
+              mode={showcaseMode}
+              onModeChange={setShowcaseMode}
+            />
           )}
         </div>
 
@@ -346,7 +285,11 @@ export default function App() {
           words={docState.words}
           errors={docState.errorCount}
           theme={theme}
+          uiTheme={uiTheme}
           isUnsaved={isUnsaved}
+          onToggleUiTheme={() =>
+            setUiTheme((t) => (t === "dark" ? "light" : "dark"))
+          }
           onErrorClick={() => {
             if (docState.firstErrorLine && editorRef.current) {
               editorRef.current.revealLineInCenter(docState.firstErrorLine);

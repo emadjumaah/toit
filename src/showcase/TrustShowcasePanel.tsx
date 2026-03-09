@@ -4,6 +4,8 @@ import type { TrustState } from "../hooks/useTrustState";
 import type { DemoDoc } from "./demoVault";
 
 interface Props {
+  mode: "search" | "trust" | "workflow";
+  onModeChange: (mode: "search" | "trust" | "workflow") => void;
   trust: TrustState;
   demoDocs: DemoDoc[];
   activeDocId: string;
@@ -37,6 +39,8 @@ function withTamper(content: string): string {
 }
 
 export function TrustShowcasePanel({
+  mode,
+  onModeChange,
   trust,
   demoDocs,
   activeDocId,
@@ -127,6 +131,30 @@ export function TrustShowcasePanel({
       <div className="showcase-panel-header">
         <h3>Document Trust</h3>
         <p>Track → approve → sign → seal → verify → amend timeline.</p>
+        <div
+          className="showcase-mode-switch"
+          role="tablist"
+          aria-label="Showcase modes"
+        >
+          <button
+            className={mode === "search" ? "active" : ""}
+            onClick={() => onModeChange("search")}
+          >
+            Search
+          </button>
+          <button
+            className={mode === "trust" ? "active" : ""}
+            onClick={() => onModeChange("trust")}
+          >
+            Trust
+          </button>
+          <button
+            className={mode === "workflow" ? "active" : ""}
+            onClick={() => onModeChange("workflow")}
+          >
+            Workflow
+          </button>
+        </div>
       </div>
 
       <div className="showcase-field">

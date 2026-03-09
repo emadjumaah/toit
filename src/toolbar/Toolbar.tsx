@@ -14,10 +14,6 @@ interface Props {
   onOpen: () => void;
   onSave: () => void;
   onModal: (m: ModalType) => void;
-  showDocPanel: boolean;
-  onToggleDocPanel: () => void;
-  showTrustPanel: boolean;
-  onToggleTrustPanel: () => void;
   isSealed?: boolean;
 }
 
@@ -32,10 +28,6 @@ export function Toolbar({
   onOpen,
   onSave,
   onModal,
-  showDocPanel,
-  onToggleDocPanel,
-  showTrustPanel,
-  onToggleTrustPanel,
   isSealed,
 }: Props) {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -142,32 +134,6 @@ export function Toolbar({
           SEALED
         </span>
       )}
-
-      <button
-        className={`tbtn panel-toggle-btn ${showDocPanel ? "active" : ""}`}
-        onClick={onToggleDocPanel}
-        title="Toggle Document panel"
-      >
-        <svg viewBox="0 0 16 16" fill="currentColor">
-          <path d="M2 2h5v12H2V2zm7 0h5v12H9V2z" opacity="0.7" />
-        </svg>
-        Document
-      </button>
-      <button
-        className={`tbtn panel-toggle-btn ${showTrustPanel ? "active" : ""}`}
-        onClick={onToggleTrustPanel}
-        title="Toggle Trust panel"
-      >
-        <svg viewBox="0 0 16 16" fill="currentColor">
-          <path
-            d="M8 1l6 3v4c0 3.5-2.6 6.8-6 7.9C4.6 14.8 2 11.5 2 8V4l6-3z"
-            opacity="0.7"
-          />
-        </svg>
-        Trust
-      </button>
-
-      <div className="toolbar-sep" />
 
       <div className="dropdown">
         <button className="tbtn" onClick={() => toggle("theme")}>

@@ -5,6 +5,8 @@ import { DEMO_DOCS, type DemoDoc } from "./demoVault";
 interface Props {
   activeTitle?: string;
   onLoadDemo: (doc: DemoDoc) => void;
+  mode: "search" | "trust" | "workflow";
+  onModeChange: (mode: "search" | "trust" | "workflow") => void;
 }
 
 type FilterToken = {
@@ -106,7 +108,12 @@ function propsSummary(props: Record<string, unknown> | undefined): string {
     .join(" · ");
 }
 
-export function SearchShowcasePanel({ activeTitle, onLoadDemo }: Props) {
+export function SearchShowcasePanel({
+  activeTitle,
+  onLoadDemo,
+  mode,
+  onModeChange,
+}: Props) {
   const [query, setQuery] = useState("type=task owner=Ahmed");
   const [viewMode, setViewMode] = useState<"table" | "cards">("table");
 
@@ -176,6 +183,30 @@ export function SearchShowcasePanel({ activeTitle, onLoadDemo }: Props) {
       <div className="showcase-panel-header">
         <h3>Vault Search</h3>
         <p>Typed query + fuzzy text across seeded vault docs.</p>
+        <div
+          className="showcase-mode-switch"
+          role="tablist"
+          aria-label="Showcase modes"
+        >
+          <button
+            className={mode === "search" ? "active" : ""}
+            onClick={() => onModeChange("search")}
+          >
+            Search
+          </button>
+          <button
+            className={mode === "trust" ? "active" : ""}
+            onClick={() => onModeChange("trust")}
+          >
+            Trust
+          </button>
+          <button
+            className={mode === "workflow" ? "active" : ""}
+            onClick={() => onModeChange("workflow")}
+          >
+            Workflow
+          </button>
+        </div>
       </div>
 
       <div className="showcase-field">

@@ -13,10 +13,10 @@ export function FirstRunGuide({ docs, onPick, onClose }: Props) {
         className="modal showcase-guide"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2>IntentText Showcase</h2>
+        <h2>Dotit Showcase</h2>
         <p>
-          This editor is now in showcase mode with three top tabs: Search,
-          Trust, and Workflow. Pick a demo document to start.
+          This editor is now in showcase mode. Use the right panel mode switch
+          to move between Search, Trust, and Workflow.
         </p>
 
         <div className="showcase-guide-list">

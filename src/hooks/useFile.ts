@@ -16,7 +16,7 @@ declare global {
 }
 
 const IT_FILE_TYPE = {
-  description: "IntentText files",
+  description: "Dotit files",
   accept: { "text/plain": [".it"] },
 };
 

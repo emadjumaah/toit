@@ -46,7 +46,7 @@ export function ConvertModal({ onApply, onClose }: Props) {
         onClick={(e) => e.stopPropagation()}
         style={{ maxWidth: 640, width: "90vw" }}
       >
-        <h2>Convert to IntentText</h2>
+        <h2>Convert to Dotit (.it)</h2>
 
         <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
           <button
