@@ -33,7 +33,11 @@ import {
   ITComment,
 } from "./extensions";
 import { DocsToolbar } from "./DocsToolbar";
-import { getBuiltinTheme, generateThemeCSS } from "@intenttext/core";
+import {
+  getBuiltinTheme,
+  generateThemeCSS,
+  parseIntentText,
+} from "@intenttext/core";
 
 interface Props {
   value: string;
@@ -135,18 +139,120 @@ export function VisualEditor({ value, onChange, theme }: Props) {
   // A4: 210mm × 297mm. At 96 DPI → 794px × 1123px
   const PAGE_WIDTH = 794;
   const PAGE_HEIGHT = 1123;
+  const PAGE_GAP = 24;
+  const PAGE_MARGIN_TOP = 96;
+  const PAGE_MARGIN_BOTTOM = 96;
+  const PAGE_CONTENT_HEIGHT =
+    PAGE_HEIGHT - PAGE_MARGIN_TOP - PAGE_MARGIN_BOTTOM;
+  const PAGE_STRIDE = PAGE_HEIGHT + PAGE_GAP;
   const pageRef = useRef<HTMLDivElement>(null);
   const [pageCount, setPageCount] = useState(1);
+
+  const applyPagedLayout = useCallback(() => {
+    const el = pageRef.current;
+    if (!el) return;
+    const tiptap = el.querySelector(".tiptap") as HTMLElement | null;
+    if (!tiptap) return;
+
+    const flowSelector = [
+      "p",
+      "li",
+      "h1",
+      "h2",
+      "h3",
+      "blockquote",
+      "pre",
+      ".it-doc-callout",
+      ".it-doc-generic",
+      ".it-doc-code",
+      ".it-doc-quote",
+      ".it-doc-break",
+      ".it-doc-divider",
+    ].join(",");
+
+    const blocks = Array.from(
+      tiptap.querySelectorAll(flowSelector),
+    ) as HTMLElement[];
+    if (blocks.length === 0) return;
+
+    const tiptapRect = tiptap.getBoundingClientRect();
+    const topInTiptap = (node: HTMLElement) =>
+      node.getBoundingClientRect().top - tiptapRect.top;
+    const bottomInTiptap = (node: HTMLElement) =>
+      node.getBoundingClientRect().bottom - tiptapRect.top;
+
+    // Reset previous auto-shifts before re-measuring.
+    for (const block of blocks) {
+      if (block.dataset.pageShift === "1") {
+        block.style.marginTop = "";
+        delete block.dataset.pageShift;
+      }
+    }
+
+    // Iterate until layout stabilizes so cascading shifts are fully applied.
+    for (let pass = 0; pass < 6; pass++) {
+      let changed = false;
+
+      for (const block of blocks) {
+        const top = topInTiptap(block);
+        const bottom = bottomInTiptap(block);
+        const blockHeight = bottom - top;
+        if (blockHeight <= 0) continue;
+
+        // `top` is measured in TipTap content coordinates (starts at content area,
+        // not at the physical page top), so page bounds must use content-space math.
+        const pageIndex = Math.floor(top / PAGE_STRIDE);
+        const pageContentBottom = pageIndex * PAGE_STRIDE + PAGE_CONTENT_HEIGHT;
+        if (bottom <= pageContentBottom) continue;
+
+        // Oversized blocks (taller than available content area) cannot fit
+        // entirely on a single page. We skip shifting the container itself and
+        // rely on reflowing its smaller child flow elements (e.g. list items).
+        if (blockHeight >= PAGE_CONTENT_HEIGHT) continue;
+
+        const nextPageTop = (pageIndex + 1) * PAGE_STRIDE;
+        const shift = Math.max(0, nextPageTop - top);
+        if (shift > 0) {
+          const nextMargin = `${shift}px`;
+          if (block.style.marginTop !== nextMargin) {
+            block.style.marginTop = nextMargin;
+            block.dataset.pageShift = "1";
+            changed = true;
+          }
+        }
+      }
+
+      if (!changed) break;
+    }
+  }, [PAGE_CONTENT_HEIGHT, PAGE_STRIDE]);
 
   const recalcPages = useCallback(() => {
     const el = pageRef.current;
     if (!el) return;
     const tiptap = el.querySelector(".tiptap") as HTMLElement | null;
     if (!tiptap) return;
-    // Content height = tiptap's scrollHeight + top/bottom padding (96 each)
-    const totalHeight = tiptap.scrollHeight + 192;
-    setPageCount(Math.max(1, Math.ceil(totalHeight / PAGE_HEIGHT)));
-  }, []);
+
+    applyPagedLayout();
+
+    const blocks = Array.from(
+      tiptap.querySelectorAll(
+        "p,li,h1,h2,h3,blockquote,pre,.it-doc-callout,.it-doc-generic,.it-doc-code,.it-doc-quote,.it-doc-break,.it-doc-divider",
+      ),
+    ) as HTMLElement[];
+    const tiptapRect = tiptap.getBoundingClientRect();
+    let lastBottom = 0;
+    for (const block of blocks) {
+      const bottom = block.getBoundingClientRect().bottom - tiptapRect.top;
+      if (bottom > lastBottom) lastBottom = bottom;
+    }
+
+    const totalHeight = Math.max(tiptap.scrollHeight, lastBottom);
+    const pages = Math.max(
+      1,
+      Math.ceil((totalHeight + PAGE_GAP) / (PAGE_CONTENT_HEIGHT + PAGE_GAP)),
+    );
+    setPageCount(pages);
+  }, [PAGE_CONTENT_HEIGHT, PAGE_GAP, applyPagedLayout]);
 
   useEffect(() => {
     const el = pageRef.current;
@@ -183,11 +289,25 @@ export function VisualEditor({ value, onChange, theme }: Props) {
     try {
       const t = getBuiltinTheme(theme);
       if (!t) return "";
-      return generateThemeCSS(t).replace(/:root\{/, ".docs-page{");
+      return generateThemeCSS(t).replace(
+        /:root\{/,
+        ".docs-page-sheet,.docs-page.docs-editor-layer{",
+      );
     } catch {
       return "";
     }
   }, [theme]);
+
+  const docLayoutMeta = useMemo(() => {
+    try {
+      const doc = parseIntentText(value);
+      const header = doc.blocks.find((b) => b.type === "header")?.content || "";
+      const footer = doc.blocks.find((b) => b.type === "footer")?.content || "";
+      return { header, footer };
+    } catch {
+      return { header: "", footer: "" };
+    }
+  }, [value]);
 
   useEffect(() => {
     const id = "it-editor-theme-css";
@@ -294,29 +414,56 @@ export function VisualEditor({ value, onChange, theme }: Props) {
           className="docs-page-scaler"
           style={{
             width: PAGE_WIDTH * zoom,
-            minHeight: (pageCount * PAGE_HEIGHT + (pageCount - 1) * 24) * zoom,
+            minHeight:
+              (pageCount * PAGE_HEIGHT + (pageCount - 1) * PAGE_GAP) * zoom,
           }}
         >
           <div
-            className="docs-page"
-            ref={pageRef}
+            className="docs-page-flow"
             style={{
-              minHeight: pageCount * PAGE_HEIGHT,
+              minHeight: pageCount * PAGE_HEIGHT + (pageCount - 1) * PAGE_GAP,
               transform: zoom !== 1 ? `scale(${zoom})` : undefined,
               transformOrigin: "top left",
+              ["--it-page-height" as string]: `${PAGE_HEIGHT}px`,
+              ["--it-page-gap" as string]: `${PAGE_GAP}px`,
+              ["--it-page-margin-top" as string]: `${PAGE_MARGIN_TOP}px`,
+              ["--it-page-margin-bottom" as string]: `${PAGE_MARGIN_BOTTOM}px`,
             }}
           >
-            <EditorContent editor={editor} />
-            {Array.from({ length: pageCount - 1 }, (_, i) => {
-              const breakY = (i + 1) * PAGE_HEIGHT;
-              return (
-                <div
-                  key={i}
-                  className="docs-page-gap-overlay"
-                  style={{ top: breakY - 12 }}
-                />
-              );
-            })}
+            <div className="docs-page-stack">
+              {Array.from({ length: pageCount }, (_, i) => {
+                const pageTop = i * (PAGE_HEIGHT + PAGE_GAP);
+                const pageNum = i + 1;
+                return (
+                  <div
+                    key={`sheet-${i}`}
+                    className="docs-page-sheet"
+                    style={{ top: pageTop }}
+                  >
+                    <div className="docs-page-header-region">
+                      <span className="docs-page-meta-text">
+                        {docLayoutMeta.header}
+                      </span>
+                    </div>
+                    <div className="docs-page-footer-region">
+                      <span className="docs-page-meta-text">
+                        {docLayoutMeta.footer}
+                      </span>
+                      <span className="docs-page-number">{pageNum}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div
+              className="docs-page docs-editor-layer"
+              ref={pageRef}
+              style={{
+                minHeight: pageCount * PAGE_HEIGHT + (pageCount - 1) * PAGE_GAP,
+              }}
+            >
+              <EditorContent editor={editor} />
+            </div>
           </div>
         </div>
         <div className="docs-page-footer">

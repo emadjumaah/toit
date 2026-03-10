@@ -1472,6 +1472,66 @@ button {
   margin: 0 auto;
 }
 
+.docs-page-flow {
+  position: relative;
+  width: 794px;
+}
+
+.docs-page-stack {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.docs-page-sheet {
+  position: absolute;
+  left: 0;
+  width: 794px;
+  height: 1123px;
+  background: #fff;
+  box-shadow:
+    0 8px 24px rgba(15, 23, 42, 0.08),
+    0 1px 3px rgba(60, 64, 67, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.docs-page-header-region,
+.docs-page-footer-region {
+  position: absolute;
+  left: 96px;
+  right: 96px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #9aa0a6;
+  pointer-events: none;
+}
+
+.docs-page-header-region {
+  top: 20px;
+  border-bottom: 1px solid rgba(218, 220, 224, 0.85);
+}
+
+.docs-page-footer-region {
+  bottom: 20px;
+  border-top: 1px solid rgba(218, 220, 224, 0.85);
+}
+
+.docs-page-meta-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.docs-page-number {
+  margin-left: 12px;
+  color: #7a828d;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ─── Page (A4-like white paper) ──────────────────────────── */
 
 .docs-page {
@@ -1487,19 +1547,48 @@ button {
   overflow: visible;
 }
 
+.docs-page.docs-editor-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  padding-top: 96px;
+  padding-right: 96px;
+  padding-bottom: 96px;
+  padding-left: 96px;
+  /* Hard page-body clipping: only show content inside each page body window.
+     This prevents any visual overlap into header/footer or page gap areas. */
+  -webkit-mask-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent var(--it-page-margin-top, 96px),
+    #000 var(--it-page-margin-top, 96px),
+    #000 calc(
+      var(--it-page-height, 1123px) - var(--it-page-margin-bottom, 96px)
+    ),
+    transparent
+      calc(var(--it-page-height, 1123px) - var(--it-page-margin-bottom, 96px)),
+    transparent calc(var(--it-page-height, 1123px) + var(--it-page-gap, 24px))
+  );
+  mask-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent var(--it-page-margin-top, 96px),
+    #000 var(--it-page-margin-top, 96px),
+    #000 calc(
+      var(--it-page-height, 1123px) - var(--it-page-margin-bottom, 96px)
+    ),
+    transparent
+      calc(var(--it-page-height, 1123px) - var(--it-page-margin-bottom, 96px)),
+    transparent calc(var(--it-page-height, 1123px) + var(--it-page-gap, 24px))
+  );
+}
+
 /* ── Card-like gap between pages ──────────────────────────── */
 .docs-page-gap-overlay {
-  position: absolute;
-  left: -4px;
-  right: -4px;
-  height: 24px;
-  z-index: 5;
-  pointer-events: none;
-  background: var(--bg-app, #f8f9fa);
-  /* Top/bottom shadow edges to look like card separation */
-  box-shadow:
-    inset 0 6px 6px -4px rgba(60, 64, 67, 0.1),
-    inset 0 -6px 6px -4px rgba(60, 64, 67, 0.1);
+  display: none;
 }
 
 .docs-page-footer {
@@ -1518,6 +1607,8 @@ button {
    ═══════════════════════════════════════════════════════════════ */
 
 .docs-page .tiptap {
+  position: relative;
+  z-index: 2;
   outline: none;
   min-height: 400px;
   font-family: var(--it-font-body, "Inter", Arial, sans-serif);

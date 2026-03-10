@@ -13,6 +13,34 @@ interface Props {
   onThemeChange: (theme: string) => void;
 }
 
+const EDITOR_PAGE_MARGIN_MM = 25.4;
+
+function buildPrintCss(themeCss: string, printMode: "normal" | "minimal-ink") {
+  return `
+@page { size: A4; margin: ${EDITOR_PAGE_MARGIN_MM}mm; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: "Inter", "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #202124;
+}
+p:empty::after { content: '\\00a0'; white-space: pre; }
+h1 { font-size: 28px; font-weight: 700; line-height: 1.3; letter-spacing: -0.5px; margin: 0 0 4px; }
+h2 { font-size: 22px; font-weight: 600; line-height: 1.3; margin: 24px 0 4px; padding-bottom: 4px; border-bottom: 1px solid #dadce0; }
+h3 { font-size: 17px; font-weight: 600; line-height: 1.3; margin: 16px 0 2px; }
+p { margin: 4px 0; }
+.it-summary { color: #5f6368; font-size: 16px; line-height: 1.5; margin: 0 0 8px; }
+.it-callout { padding: 12px 16px; border-radius: 8px; margin: 8px 0; }
+.it-divider { border: none; border-top: 1px solid #dadce0; margin: 16px 0; }
+pre { background: #f8f9fa; padding: 12px 16px; border-radius: 8px; font-size: 13px; line-height: 1.6; overflow-x: auto; }
+blockquote { border-left: 3px solid #9aa0a6; padding-left: 16px; margin: 12px 0; color: #3c4043; font-style: italic; }
+h1, h2, h3, p, pre, blockquote, .it-callout, .it-generic, .it-doc-generic { page-break-inside: avoid; break-inside: avoid; }
+${printMode === "minimal-ink" ? ".it-callout{background:none!important;border:1px solid #ccc!important}" : ""}
+${themeCss}
+`;
+}
+
 function download(data: string, filename: string, mime: string) {
   const blob = new Blob([data], { type: mime });
   const url = URL.createObjectURL(blob);
@@ -38,32 +66,7 @@ export function PrintBar({ content, theme, onThemeChange }: Props) {
       const t = getBuiltinTheme(theme);
       const css = t ? generateThemeCSS(t) : "";
       const preservedHtml = html.replace(/<p><\/p>/g, "<p>&nbsp;</p>");
-      const full = `<!doctype html><html><head><style>
-@page { size: A4; margin: 25.4mm; }
-html, body { margin: 0; padding: 0; width: 210mm; }
-body {
-  font-family: system-ui, -apple-system, sans-serif;
-  font-size: 11pt;
-  line-height: 1.6;
-  color: #202124;
-  padding: 96px;
-  box-sizing: border-box;
-  max-width: 210mm;
-  margin: 0 auto;
-}
-p:empty::after { content: '\\00a0'; white-space: pre; }
-h1 { font-size: 26pt; font-weight: 700; margin: 0 0 8px; }
-h2 { font-size: 18pt; font-weight: 600; margin: 24px 0 8px; }
-h3 { font-size: 14pt; font-weight: 600; margin: 18px 0 6px; }
-p { margin: 0 0 8px; }
-.it-summary { color: #5f6368; font-size: 12pt; margin: 0 0 16px; }
-.it-callout { padding: 12px 16px; border-radius: 6px; margin: 8px 0; }
-.it-divider { border: none; border-top: 1px solid #dadce0; margin: 16px 0; }
-pre { background: #f5f5f5; padding: 12px; border-radius: 4px; font-size: 10pt; overflow-x: auto; }
-blockquote { border-left: 3px solid #dadce0; padding-left: 12px; color: #5f6368; margin: 8px 0; }
-${printMode === "minimal-ink" ? ".it-callout{background:none!important;border:1px solid #ccc!important}" : ""}
-${css}
-</style></head><body>${preservedHtml}</body></html>`;
+      const full = `<!doctype html><html><head><style>${buildPrintCss(css, printMode)}</style></head><body>${preservedHtml}</body></html>`;
 
       const iframe = document.createElement("iframe");
       iframe.style.cssText = "position:fixed;left:-9999px;width:0;height:0";
@@ -90,31 +93,7 @@ ${css}
       const full = `<!doctype html>
 <html>
 <head>
-<style>
-@page { size: A4; margin: 25.4mm; }
-html, body { margin: 0; padding: 0; width: 210mm; }
-body {
-  font-family: system-ui, -apple-system, sans-serif;
-  font-size: 11pt;
-  line-height: 1.6;
-  color: #202124;
-  padding: 96px;
-  box-sizing: border-box;
-  max-width: 210mm;
-  margin: 0 auto;
-}
-p:empty::after { content: '\\00a0'; white-space: pre; }
-h1 { font-size: 26pt; font-weight: 700; margin: 0 0 8px; }
-h2 { font-size: 18pt; font-weight: 600; margin: 24px 0 8px; }
-h3 { font-size: 14pt; font-weight: 600; margin: 18px 0 6px; }
-p { margin: 0 0 8px; }
-.it-summary { color: #5f6368; font-size: 12pt; margin: 0 0 16px; }
-.it-callout { padding: 12px 16px; border-radius: 6px; margin: 8px 0; }
-.it-divider { border: none; border-top: 1px solid #dadce0; margin: 16px 0; }
-pre { background: #f5f5f5; padding: 12px; border-radius: 4px; font-size: 10pt; overflow-x: auto; }
-blockquote { border-left: 3px solid #dadce0; padding-left: 12px; color: #5f6368; margin: 8px 0; }
-${css}
-</style>
+<style>${buildPrintCss(css, printMode)}</style>
 </head>
 <body>
 ${preservedHtmlExport}
